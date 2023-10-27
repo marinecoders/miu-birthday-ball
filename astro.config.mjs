@@ -7,8 +7,9 @@ import svelte from '@astrojs/svelte'
 export default defineConfig({
   integrations: [
     tailwind(),
+    react(),
     svelte(),
   ],
-  site: 'https://dev-mcswf.usmc.dev',
+  site: 'https://miu-birthday-ball.usmc.dev',
   base: '/',
 })
