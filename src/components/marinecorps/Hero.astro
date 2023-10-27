@@ -1,0 +1,38 @@
+---
+import RedButton from '../buttons/RedButton.astro'
+
+interface Props {
+  title: string
+  content: string
+  link?: string
+  linkText?: string
+  padding: string
+}
+
+const { title, content, link = null, linkText = null, padding } = Astro.props
+---
+
+<div class:list={["max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-inherit", padding]}>
+  <!-- Title -->
+  <div class="max-w-6xl mx-auto mt-5 text-center">
+    <h1 class="block text-4xl font-bold md:text-5xl lg:text-6xl">
+      {title}
+    </h1>
+  </div>
+  <!-- End Title -->
+
+  <div class="max-w-3xl mx-auto mt-5 text-center">
+    <p class="text-lg text-slate-600 dark:text-slate-400">
+      {content}
+    </p>
+  </div>
+
+  <!-- Buttons -->
+  {
+  link ?
+  <div class="grid w-full gap-3 mt-8 sm:inline-flex sm:justify-center">
+    <RedButton href={link} text={linkText} />
+  </div>
+  : ""} 
+  <!-- End Buttons -->
+</div>
