@@ -12,6 +12,6 @@ export default defineConfig({
     }),
     svelte(),
   ],
-  site: 'https://miu-birthday-ball.usmc.dev',
+  site: 'https://birthday.usmc.dev',
   base: '/',
 })
