@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Hero from '../components/marinecorps/Hero.astro'
+import DropDown from '../components/react/Dropdown.jsx'
+import RedButton from '../components/buttons/RedButton.astro'
+import SeatingMap from '../components/react/SeatingMap.jsx'
+import "../styles/global.css"
+---
+<Layout title="">
+  <div class="max-h-screen overflow-auto">
+    <div class="h-screen  overflow-auto">
+      <SeatingMap client:only="react"/>
+    </div>
+    
+</Layout>
