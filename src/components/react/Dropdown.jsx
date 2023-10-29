@@ -14,21 +14,32 @@ export default class DropDown extends React.Component {
     }
 
     componentDidMount() {
-        // TODO READ IN JSON                    
-        this.setState({options: [
-            {name: 'John Smith', value: 'John Smith', table: 9},
-            {name: 'Jane Smith', value: 'Jane Smith', table: 9},
-            {name: 'Richard Smitz', value: 'Richard Smitz', table: 12},
-            {name: 'Bobby Orr', value: 'Bobby Orr', table: 5},
-            {name: 'Ron Burgundy', value: 'Ron Burgundy', table: 2},
-            {name: 'Luke Skywalker', value: 'Luke Skywalker', table: 19},
-            {name: 'Col. Mustard', value: 'Col. Mustard', table: 11},
-            {name: 'Gordie Howe', value: 'Gordie Howe', table: 16},
-            {name: 'Pavel Datsyuk', value: 'Pavel Datsyuk', table: 4},
-            {name: 'Steve Yzerman', value: 'Steve Yzerman', table: 1},
-            {name: 'Nick Lidstrom', value: 'Nick Lidstrom', table: 9},
-            {name: 'Terry Sawchuck', value: 'Terry Sawchuck', table: 20},
-        ]});
+        let queryString = window.location.search;
+        let urlParams = new URLSearchParams(queryString);
+
+        // TODO READ IN JSON         
+        fetch("https://miu-ball.onrender.com/get_attendees", {
+            method: "POST",
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            headers: {
+                "Content-Type": "application/json",
+            },
+            rejectUnauthorized: false,
+            body: JSON.stringify({
+                password: urlParams.get('password')
+            }),
+        }).then((response) => response.json()).then((data) => {
+            let options = []
+            for (let option of data) {
+                options.push({
+                    name: option.first_name + " " + option.last_name,
+                    value: option.first_name + " " + option.last_name,
+                    table: option.table
+                })
+            }
+            this.setState({options})
+        });
     }
     
     onChange = (selection) => {
