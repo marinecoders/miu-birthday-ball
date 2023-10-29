@@ -11,11 +11,6 @@ class Attendee:
     table: int
 
 
-wb_obj = openpyxl.load_workbook("seating_chart.xlsx")
-wb_obj.active = 2
-sheet_obj = wb_obj.active
-
-
 def get_attendees(table_start_row: int, table_start_col: int) -> list[Attendee]:
     table_end_row = table_start_row + 15
     table_end_col = table_start_col + 6
@@ -53,17 +48,24 @@ def get_attendees(table_start_row: int, table_start_col: int) -> list[Attendee]:
     return attendees
 
 
-start_rows = range(1, 186, 17)
-start_cols = range(1, 20, 7)
-table_start_positions = product(start_rows, start_cols)
-
+wb_obj = openpyxl.load_workbook("seating_chart.xlsx")
+sheets = [1, 2]
 all_attendees: list[Attendee] = []
-for start_position in table_start_positions:
-    start_row, start_col = start_position
-    table_attendees = get_attendees(start_row, start_col)
 
-    if table_attendees:
-        all_attendees.extend(table_attendees)
+for sheet in sheets:
+    wb_obj.active = sheet
+    sheet_obj = wb_obj.active
+
+    start_rows = range(1, 186, 17)
+    start_cols = range(1, 20, 7)
+    table_start_positions = product(start_rows, start_cols)
+
+    for start_position in table_start_positions:
+        start_row, start_col = start_position
+        table_attendees = get_attendees(start_row, start_col)
+
+        if table_attendees:
+            all_attendees.extend(table_attendees)
 
 with open("attendees.json", "w") as json_file:
     json_friendly_list = [asdict(attendee) for attendee in all_attendees]
