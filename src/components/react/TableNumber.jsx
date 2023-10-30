@@ -39,7 +39,7 @@ export default class DropDown extends React.Component {
                 </div>
                 <div className="flex justify-center mt-20">
                     <div className="inline-flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs font-semibold leading-loose text-white transition-all bg-red-800 border border-transparent rounded-md hover:ring-2 focus:outline-none focus:ring-2 ring-offset-white focus:ring-red-500 hover:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                        <a href={"table_map?table=" + this.state.table}>View Venue Map</a>
+                        <a href={"/table_map?table=" + this.state.table}>View Venue Map</a>
                     </div>
                 </div>
             </div>
