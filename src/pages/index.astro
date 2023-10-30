@@ -1,22 +1,25 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import Hero from '../components/marinecorps/Hero.astro'
-import DropDown from '../components/react/Dropdown.jsx'
-import RedButton from '../components/buttons/RedButton.astro'
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/marinecorps/Hero.astro";
+import DropDown from "../components/react/Dropdown.jsx";
+import RedButton from "../components/buttons/RedButton.astro";
 
-import "../styles/global.css"
+import "../styles/global.css";
 ---
+
 <Layout title="">
-  <div class="max-h-screen overflow-y-scroll scrollbar-hide snap-start snap-y snap-mandatory">
+  <div
+    class="max-h-screen overflow-y-scroll scrollbar-hide snap-start snap-y snap-mandatory"
+  >
     <div class="h-screen snap-start md:py-20">
       <Hero
         title="WELCOME TO THE MARINE CORPS BALL"
         content="Find your seat"
-        padding='pt-12'
+        padding="pt-12"
       />
       <div class="flex justify-center mt-10">
-        <DropDown client:load/>
+        <DropDown client:only="react" />
       </div>
     </div>
-    
+  </div>
 </Layout>
