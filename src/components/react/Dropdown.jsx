@@ -31,13 +31,19 @@ export default class DropDown extends React.Component {
             }),
         }).then((response) => response.json()).then((data) => {
             let options = []
+
             for (let option of data) {
-                options.push({
-                    name: option.first_name + " " + option.last_name,
-                    value: option.first_name + " " + option.last_name,
-                    table: option.table
-                })
+                if (!options.find(element => (element.value == (option.first_name + " " + option.last_name + " " + option.table))
+                    && (element.table == option.table))) {
+                    options.push({
+                        name: option.first_name + " " + option.last_name,
+                        value: option.first_name + " " + option.last_name + " " + option.table,
+                        table: option.table
+                    })
+                }
+                
             }
+            console.log(options)
             this.setState({options})
         });
     }
