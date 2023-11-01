@@ -3,10 +3,11 @@ import Layout from "../layouts/Layout.astro";
 import Hero from "../components/marinecorps/Hero.astro";
 import DropDown from "../components/react/Dropdown.jsx";
 import RedButton from "../components/buttons/RedButton.astro";
+import miuLogo from "../../assets/Marine Innovation Unit - White.png";
+import { Image } from 'astro:assets';
 
 import "../styles/global.css";
 ---
-
 <Layout title="">
   <div
     class="max-h-screen overflow-y-scroll scrollbar-hide snap-start snap-y snap-mandatory"
@@ -17,8 +18,16 @@ import "../styles/global.css";
         content="Find your seat"
         padding="pt-12"
       />
-      <div class="flex justify-center mt-10">
+      <div class="mb-12 flex justify-center mt-10">
         <DropDown client:only="react" />
+      </div>
+      <div class="flex justify-center">
+        <Image 
+          src={miuLogo} 
+          alt="Marine Innovation" 
+          width="250%"
+          height="35%"
+        />
       </div>
     </div>
   </div>
