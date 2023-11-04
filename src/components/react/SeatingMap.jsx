@@ -134,17 +134,17 @@ function generateShapes() {
             rotation: 0
         },
         {
-            id: "49",
+            id: "47",
             x:  (74/360) * BASE_SIZE,
             y: (65/360) * BASE_SIZE,
-            number: 49,
+            number: 47,
             rotation: 0
         },
         {
-            id: "47",
+            id: "49",
             x:  (66/360) * BASE_SIZE,
             y: (74/360) * BASE_SIZE,
-            number: 47,
+            number: 49,
             rotation: 0
         },
         {
@@ -316,17 +316,17 @@ function generateShapes() {
             rotation: 0
         },
         {
-            id: "50",
+            id: "48",
             x:  BASE_SIZE - (74/360) * BASE_SIZE,
             y: (65/360) * BASE_SIZE,
-            number: 50,
+            number: 48,
             rotation: 0
         },
         {
-            id: "48",
+            id: "50",
             x:  BASE_SIZE - (66/360) * BASE_SIZE,
             y: (74/360) * BASE_SIZE,
-            number: 48,
+            number: 50,
             rotation: 0
         },
         {

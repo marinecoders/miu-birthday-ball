@@ -16,7 +16,9 @@ export default class DropDown extends React.Component {
     componentDidMount() {
         let queryString = window.location.search;
         let urlParams = new URLSearchParams(queryString);
-
+        if (!urlParams.get('password') || urlParams.get('password') == "") {
+            window.location.href = '/error'
+        }
         // TODO READ IN JSON         
         fetch("https://miu-ball.onrender.com/get_attendees", {
             method: "POST",

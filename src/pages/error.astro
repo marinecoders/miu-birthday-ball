@@ -1,0 +1,31 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/marinecorps/Hero.astro";
+import DropDown from "../components/react/Dropdown.jsx";
+import RedButton from "../components/buttons/RedButton.astro";
+import miuLogo from "../../assets/Marine Innovation Unit - White.png";
+import { Image } from 'astro:assets';
+
+import "../styles/global.css";
+---
+<Layout title="">
+  <div
+    class="max-h-screen overflow-y-scroll scrollbar-hide snap-start snap-y snap-mandatory"
+  >
+    <div class="h-screen snap-start md:py-20">
+      <Hero
+        title="WELCOME TO THE MARINE CORPS BALL"
+        content="Please scan any of the QR codes found throughout the venue."
+        padding="pt-12"
+      />
+      <div class="mt-12 flex justify-center">
+        <Image 
+          src={miuLogo} 
+          alt="Marine Innovation" 
+          width="250%"
+          height="35%"
+        />
+      </div>
+    </div>
+  </div>
+</Layout>
