@@ -14,13 +14,13 @@ export default class DropDown extends React.Component {
     }
 
     componentDidMount() {
-        let queryString = window.location.search;
-        let urlParams = new URLSearchParams(queryString);
-        if (!urlParams.get('password') || urlParams.get('password') == "") {
-            window.location.href = '/error'
-        }
+        // let queryString = window.location.search;
+        // let urlParams = new URLSearchParams(queryString);
+        // if (!urlParams.get('password') || urlParams.get('password') == "") {
+        //     window.location.href = '/error'
+        // }
         // TODO READ IN JSON         
-        fetch("https://miu-ball.onrender.com/get_attendees", {
+        fetch("https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-bd167a67-9585-47aa-8ecf-973709cdf3c0/default/birthday-response", {
             method: "POST",
             mode: "cors", // no-cors, *cors, same-origin
             cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -28,18 +28,15 @@ export default class DropDown extends React.Component {
                 "Content-Type": "application/json",
             },
             rejectUnauthorized: false,
-            body: JSON.stringify({
-                password: urlParams.get('password')
-            }),
         }).then((response) => response.json()).then((data) => {
             let options = []
 
             for (let option of data) {
-                if (!options.find(element => (element.value == (option.first_name + " " + option.last_name + " " + option.table))
+                if (!options.find(element => (element.value == (option.title + " " + option.first_name + " " + option.last_name + " " + option.table))
                     && (element.table == option.table))) {
                     options.push({
-                        name: option.first_name + " " + option.last_name,
-                        value: option.first_name + " " + option.last_name + " " + option.table,
+                        name: option.title + " " + option.first_name + " " + option.last_name,
+                        value: option.title + " " + option.first_name + " " + option.last_name + " " + option.table,
                         table: option.table
                     })
                 }
@@ -78,7 +75,7 @@ export default class DropDown extends React.Component {
                         className="select-search"
                         options={this.state.options}
                         search
-                        placeholder="Select your host's name"
+                        placeholder="Select your name"
                         value={this.state.selection}
                         onChange={(value) => this.onChange(value)}
                     />
