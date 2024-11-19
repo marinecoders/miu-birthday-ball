@@ -16,11 +16,11 @@ export default class DropDown extends React.Component {
     componentDidMount() {
         let queryString = window.location.search;
         let urlParams = new URLSearchParams(queryString);
-        if (!urlParams.get('password') || urlParams.get('password') == "") {
+        if (!urlParams.get('key') || urlParams.get('key') == "") {
             window.location.href = '/error'
         }
         // TODO READ IN JSON         
-        fetch("https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-bd167a67-9585-47aa-8ecf-973709cdf3c0/default/birthday-response", {
+        fetch("https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-bd167a67-9585-47aa-8ecf-973709cdf3c0/default/birthday-response?key=" + urlParams.get('key'), {
             method: "POST",
             mode: "cors", // no-cors, *cors, same-origin
             cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -28,9 +28,6 @@ export default class DropDown extends React.Component {
                 "Content-Type": "application/json",
             },
             rejectUnauthorized: false,
-            body: JSON.stringify({
-                password: urlParams.get('password')
-            }),
         }).then((response) => response.json()).then((data) => {
             let options = []
 
@@ -45,7 +42,6 @@ export default class DropDown extends React.Component {
                 }
                 
             }
-            console.log(options)
             this.setState({options})
         });
     }

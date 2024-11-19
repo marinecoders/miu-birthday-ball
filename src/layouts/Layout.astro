@@ -1,4 +1,5 @@
 ---
+import Hero from '../components/marinecorps/Hero.astro'
 interface Props {
   title?: string
 }
@@ -22,5 +23,15 @@ const { title = null } = Astro.props
   </head>
   <body class="bg-slate-200 dark:bg-slate-800 dark:text-white font-rubik">
     <slot />
+    
   </body>
+  <footer><div class="inline-flex align-middle m-auto">      
+      <div class="max-w-6xl mx-auto mt-5 text-center">
+        <h1 class="block text-4xl font-bold md:text-5xl lg:text-6xl">
+          POWERED BY MARINE CODERS
+        </h1>
+      </div>
+      <div class="m-auto max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-inherit" style="height=50%; width=50%;" ><img src="assets/Marine Coders Logo.png"/></div>
+    </div>
+  </footer>
 </html>
