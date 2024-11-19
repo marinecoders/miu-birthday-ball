@@ -14,11 +14,11 @@ export default class DropDown extends React.Component {
     }
 
     componentDidMount() {
-        // let queryString = window.location.search;
-        // let urlParams = new URLSearchParams(queryString);
-        // if (!urlParams.get('password') || urlParams.get('password') == "") {
-        //     window.location.href = '/error'
-        // }
+        let queryString = window.location.search;
+        let urlParams = new URLSearchParams(queryString);
+        if (!urlParams.get('password') || urlParams.get('password') == "") {
+            window.location.href = '/error'
+        }
         // TODO READ IN JSON         
         fetch("https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-bd167a67-9585-47aa-8ecf-973709cdf3c0/default/birthday-response", {
             method: "POST",
@@ -28,6 +28,9 @@ export default class DropDown extends React.Component {
                 "Content-Type": "application/json",
             },
             rejectUnauthorized: false,
+            body: JSON.stringify({
+                password: urlParams.get('password')
+            }),
         }).then((response) => response.json()).then((data) => {
             let options = []
 
