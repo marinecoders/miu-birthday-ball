@@ -1,5 +1,6 @@
 ---
-import Hero from '../components/marinecorps/Hero.astro'
+import codersLogo from "../../assets/Marine Coders Logo.png";
+import { Image } from 'astro:assets';
 interface Props {
   title?: string
 }
@@ -31,7 +32,12 @@ const { title = null } = Astro.props
           POWERED BY MARINE CODERS
         </h1>
       </div>
-      <div class="m-auto max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-inherit" style="height=50%; width=50%;" ><img src="assets/Marine Coders Logo.png"/></div>
+      <div class="m-auto max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-inherit" style="height=50%; width=50%;" >
+          <Image 
+            src={codersLogo} 
+            alt="Marine Innovation" 
+          />
+      </div>
     </div>
   </footer>
 </html>
