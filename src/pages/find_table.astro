@@ -62,4 +62,10 @@ const search = Astro.url.searchParams.get('search')! || '';
     <div style=" max-width: fit-content; margin-left: auto; margin-right: auto; padding-bottom: 100px !important; padding-top: 50px !important;">
       <iframe width="auto" height="auto" src="https://www.youtube.com/embed/HKpfV_dKOWY?si=ywwcxcuYSLsMJJ5B" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>  
     </div>
+    <div class="flex justify-center pb-20">
+        <div class="inline-flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs font-semibold leading-loose text-white transition-all bg-red-800 border border-transparent rounded-md hover:ring-2 focus:outline-none focus:ring-2 ring-offset-white focus:ring-red-500 hover:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+            <button onclick="history.back()">Go Back</button>                    
+        </div>
+    </div>
+
 </Layout>
