@@ -25,8 +25,8 @@ export default class DropDown extends React.Component {
                         </h1>
                     </div>
                 </div>
-                <div className="max-w-3xl mx-auto mt-5 text-center">
-                    <p className="text-lg text-slate-600 text-slate-400">
+                <div class="max-w-3xl mx-auto mt-5 text-center">
+                    <p class="text-lg text-slate-600 dark:text-slate-400">
                         Please make your way to your table, {this.state.name}
                     </p>
                 </div>
