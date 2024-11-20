@@ -23,10 +23,10 @@ const { title = null } = Astro.props
     <title>MIU {title && "-"} {title}</title>
   </head>
   <body class="bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-white font-rubik">
-    <slot />
-    
-  </body>
-  <footer class="justify-center" style="display: flex; align-items: center">
+    <div class="h-screen overflow-y-scroll scrollbar-hide">
+      <slot />
+    </div>
+    <footer class="justify-center" style="display: flex; align-items: center">
       <p style="text-align: center; flex: 4; padding: 0;" class="text-sm font-bold">
           POWERED BY MARINE CODERS
       </p>
@@ -38,5 +38,6 @@ const { title = null } = Astro.props
             alt="Marine Innovation" 
           />
       </div>
-  </footer>
+    </footer>
+  </body>
 </html>
