@@ -26,10 +26,10 @@ const { title = null } = Astro.props
     <slot />
     
   </body>
-  <footer style="display: flex; align-items: center"><div class="inline-flex align-middle content-between justify-center m-auto">    
-      <div style="flex: 4" class="flex items-center max-w-6xl align-middle align-center text-center block text-sm">
+  <footer class="justify-center" style="display: flex; align-items: center">
+      <p style="text-align: center; flex: 4; padding: 0;" class="text-sm font-bold">
           POWERED BY MARINE CODERS
-      </div>
+      </p>
       <div style="flex: 1;" class=" items-center max-w-[85rem] px-4 sm:px-6 lg:px-8 pt-inherit" style="height=50%; width=50%;" >
           <Image 
             width="50px"
@@ -38,6 +38,5 @@ const { title = null } = Astro.props
             alt="Marine Innovation" 
           />
       </div>
-    </div>
   </footer>
 </html>
