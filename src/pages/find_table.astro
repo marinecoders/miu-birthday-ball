@@ -5,6 +5,11 @@ import DropDown from '../components/react/Dropdown.jsx'
 import RedButton from '../components/buttons/RedButton.astro'
 
 import "../styles/global.css"
+import { Image } from 'astro:assets';
+import cmcFlag from "../../assets/CMC Flag.png";
+import cmcSignature from "../../assets/CMC Signature.png";
+
+
 
 const search = Astro.url.searchParams.get('search')! || '';
 
@@ -13,8 +18,37 @@ const search = Astro.url.searchParams.get('search')! || '';
 
 
 <Layout title="">
-  <div class="max-h-screen overflow-y-scroll scrollbar-hide snap-start snap-y snap-mandatory">
-    <div class="h-screen snap-start md:py-20">
+  <div class="h-screen overflow-y-scroll scrollbar-hide">
+    <div class="md:py-20">
       <TableNumber client:only="react" />
+    </div>
+    <div class="px-20 py-20">
+      <Image 
+            src={cmcFlag} 
+            alt="Marine Innovation" 
+          />
+    </div>
+    <div class="px-5">
+      <p class="py-5">
+        For 249 years, Marines have served as our Nation's sentinels of freedom. As we celebrate our Corps' birthday this year, I encourage all Marines to reflect on our legacy forged in blood on battlefields since 1775, and to rededicate ourselves to carrying that legacy untarnished into the future. Collectively, we who wear the Eagle, Globe, and Anchor have an obligation to uphold the ideals of self-discipline, warfighting proficiency, professionalism, and personal conduct that define what it means to be a Marine. I know you are all up to the task.
+      </p>
+      <p class="py-5">
+        Twenty years ago this month, Marines fought and won the Second Battle of Fallujah, a brutal, grinding house to house fight, whose victory ultimately paved the way for the stabilization of the Republic of Iraq. Often in Iraq there were no true front lines, and by necessity, Fallujah was a battle in which every Marine fought, demonstrating once again our cornerstone philosophy that Every Marine is a Rifleman.
+      </p>
+      <p class="py-5">
+        Our history bears witness to Marines of all stripes picking up their rifles and fighting for Corps and Country when the call came. From Wake Island to the Chosin Reservoir to Khe Sanh to Camp Bastion, every Marine fought. Our future battles will be no different. Our rear areas will be as vulnerable as our front lines and every Marine from our infantry battalions to our aviation squadrons to our headquarters and support elements will have to stand-to when called.
+      </p>
+      <p class="py-5">
+        Preparing for the threats of the future requires the same exceptional standards and ironclad discipline that are the hallmarks of our Corps. Twenty years ago in Fallujah, our predecessors staunchly adhered to these virtues, earned our Nation's trust, and ensured the U.S. Marine Corps would remain the most feared fighting force in the world. It is our sworn duty to uphold those standards and stay true to our Core Values of Honor, Courage, and Commitment. Though technology and equipment change, the Marine Corps' culture of excellence must not. The road ahead is far from certain, but our ethos will never change — Every Marine a Rifleman and Everyone Fights.
+      </p>
+      <p class="py-5">
+        As I've said before, it is the honor of my lifetime to be a Marine and serve as your Commandant. I'm proud to stand alongside each of you, and I'm excited to see what the future holds for our Corps. When I travel to visit Marines here at home and deployed around the globe, I find absolute confidence that this generation of Marines has what it takes to uphold our Corps' legacy and prevail in any conflict we face. Happy Birthday, Marines!
+      </p>
+    </div>
+    <div class="px-20 py-20">
+      <Image 
+            src={cmcSignature} 
+            alt="Marine Innovation" 
+          />
     </div>
 </Layout>
