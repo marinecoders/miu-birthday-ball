@@ -21,7 +21,7 @@ export default class DropDown extends React.Component {
         }
         // TODO READ IN JSON         
         fetch("https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-bd167a67-9585-47aa-8ecf-973709cdf3c0/default/birthday-response?key=" + urlParams.get('key'), {
-            method: "POST",
+            method: "GET",
             mode: "cors", // no-cors, *cors, same-origin
             cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
             headers: {
