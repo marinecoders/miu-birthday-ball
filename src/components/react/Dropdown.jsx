@@ -32,11 +32,11 @@ export default class DropDown extends React.Component {
             let options = []
 
             for (let option of data) {
-                if (!options.find(element => (element.value == (option.title + " " + option.first_name + " " + option.last_name + " " + option.table))
+                if (!options.find(element => (element.value == (option.title + " " + option.first_name + " " + option.last_name))
                     && (element.table == option.table))) {
                     options.push({
                         name: option.title + " " + option.first_name + " " + option.last_name,
-                        value: option.title + " " + option.first_name + " " + option.last_name + " " + option.table,
+                        value: option.title + " " + option.first_name + " " + option.last_name ,
                         table: option.table
                     })
                 }
