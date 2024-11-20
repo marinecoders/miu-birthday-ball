@@ -15,7 +15,7 @@ const { title, content, link = null, linkText = null, padding } = Astro.props
 <div class:list={["max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-inherit", padding]}>
   <!-- Title -->
   <div class="max-w-6xl mx-auto mt-5 text-center">
-    <h1 class="block text-4xl font-bold md:text-5xl lg:text-6xl">
+    <h1 class="text-4xl font-bold md:text-5xl lg:text-6xl bg-gradient-to-r from-slate-800 via-slate-950 to-slate-800 dark:from-white dark:via-slate-50 dark:to-slate-200 inline-block text-transparent bg-clip-text">
       {title}
     </h1>
   </div>

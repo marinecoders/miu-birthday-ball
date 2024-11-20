@@ -21,7 +21,7 @@ export default class DropDown extends React.Component {
                 <div className={["max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-inherit pt-12"]}>
                     <div className="max-w-6xl mx-auto text-center">
                         <h1 className="block text-4xl font-bold md:text-5xl lg:text-6xl">
-                            {"Welcome to the Marine Corps Ball"}
+                            {"Welcome to the 249th Marine Corps Birthday Ball"}
                         </h1>
                     </div>
                 </div>
