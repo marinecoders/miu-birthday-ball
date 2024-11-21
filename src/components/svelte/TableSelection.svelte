@@ -49,7 +49,7 @@
       transition:fade={{ duration: 2000 }}
       class="mx-12 my-10 rounded-3xl text-left"
     >
-      <h3 class="text-3xl font-mono underline decoration-2 mb-2 text-slate-300">
+      <h3 class="text-3xl font-mono underline decoration-2 mb-2 text-slate-50">
         Table {tableNumberSelected}
       </h3>
       <ul class="text-xl text-slate-50 tracking-wide font-serif">
@@ -63,7 +63,7 @@
       </ul>
     </div>
   {/if}
-  <div class="grid grid-cols-5 gap-6 my-10 mx-4 text-xl">
+  <div class="grid grid-cols-5 gap-8 my-10 mx-4 text-xl">
     {#each attendeePromise.uniqueTableNumbers as tableNum}
       <button
         class="relative drop-shadow-md rounded-lg focus:outline-none focus:border-sky-500 focus:ring focus:ring-sky-500"
@@ -71,7 +71,7 @@
         on:click={() => (tableNumberSelected = tableNum)}
       >
         <img
-          src="../../../assets/table.svg"
+          src={"../../../assets/table.svg"}
           class="m-auto"
           alt="Table Icon"
         />
