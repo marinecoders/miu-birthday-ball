@@ -47,12 +47,14 @@
   {#if tableNumberSelected}
     <div
       transition:fade={{ duration: 2000 }}
-      class="mx-12 my-10 rounded-3xl text-left"
+      class="mx-12 my-10 rounded-3xl text-center font-serif"
     >
-      <h3 class="text-3xl font-mono underline decoration-2 mb-2 text-slate-50">
+      <h3
+        class="text-3xl underline decoration-2 underline-offset-8 mb-2 text-slate-400"
+      >
         Table {tableNumberSelected}
       </h3>
-      <ul class="text-xl text-slate-50 tracking-wide font-serif">
+      <ul class="text-xl text-slate-50 tracking-wide">
         {#each attendeePromise.byTable[tableNumberSelected] as attendee}
           <li>
             {attendee.title}
