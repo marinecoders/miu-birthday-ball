@@ -65,7 +65,7 @@
       </ul>
     </div>
   {/if}
-  <div class="grid grid-cols-5 gap-8 my-10 mx-4 text-xl">
+  <div class="grid grid-cols-5 gap-8 mt-10 mb-20 mx-4 text-xl h-dvh">
     {#each attendeePromise.uniqueTableNumbers as tableNum}
       <button
         class="relative drop-shadow-md rounded-lg focus:outline-none focus:border-sky-500 focus:ring focus:ring-sky-500"
