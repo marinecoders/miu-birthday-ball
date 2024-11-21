@@ -11,7 +11,9 @@ export default class DropDown extends React.Component {
         let urlParams = new URLSearchParams(queryString);
         this.state = {
             name: urlParams.get('name'),
-            table: urlParams.get('table')
+            table: urlParams.get('table'),
+            attendees: [], // You need to pass state from the fetch call to this component
+            showAttendees: ""
         }
     }
 
@@ -25,17 +27,32 @@ export default class DropDown extends React.Component {
                         </h1>
                     </div>
                 </div>
-                <div class="mx-auto mt-5 text-center text-lg text-slate-400">
-                    <p class="text-slate-300 tracking-wider text-xl">{this.state.name}</p>
-                    <p class="italic">
+                <div className="mx-auto mt-5 text-center text-lg text-slate-400">
+                    <p className="text-slate-300 tracking-wider text-xl">{this.state.name}</p>
+                    <p className="italic">
                         Please make your way to
                     </p>
                 </div>
-                    <div className="max-w-6xl mx-auto mt-6 mb-10 text-center">
-                        <h1 className="block text-5xl font-bold md:text-5xl lg:text-6xl text-red-700">
-                            Table {this.state.table}
-                        </h1>
+                    <div className="text-center">
+                        <button className="block text-5xl font-bold mx-auto my-6 text-red-700" onClick={() => this.setState({ showAttendees: this.state.table })}
+                        >
+                        Table {this.state.table}
+                        </button>
                     </div>
+                {/* {this.state.showAttendees && (
+                    <div className="mx-12 my-10 rounded-3xl text-center font-serif">
+                        <h3 className="text-3xl underline decoration-2 underline-offset-8 mb-2 text-slate-400">
+                            Table {this.state.table}
+                        </h3>
+                        <ul className="text-xl text-slate-50 tracking-wide">
+                            {this.props.attendees[this.state.table].map((attendee, index) => (
+                            <li key={index}>
+                                {attendee.title} {attendee.first_name} {attendee.last_name}
+                            </li>
+                            ))}
+                        </ul>
+                    </div>
+                )} */}
             </div>
         );
     }
