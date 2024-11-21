@@ -5,8 +5,10 @@ import DropDown from "../components/react/Dropdown.jsx";
 import RedButton from "../components/buttons/RedButton.astro";
 import miuLogo from "../../assets/Marine Innovation Unit - White.png";
 import { Image } from 'astro:assets';
+import TableSelection from "../components/svelte/TableSelection.svelte";
 
 import "../styles/global.css";
+
 ---
 <Layout title="">
   <div
@@ -18,10 +20,10 @@ import "../styles/global.css";
         content="Find your seat"
         padding="pt-12"
       />
-      <div class="mb-12 flex justify-center mt-10">
+      <div class="flex justify-center mt-10">
         <DropDown client:only="react" />
       </div>
-      <div class="flex justify-center">
+      <div class="flex justify-center my-12">
         <Image 
           src={miuLogo} 
           alt="Marine Innovation" 
@@ -29,6 +31,12 @@ import "../styles/global.css";
           height="35%"
           class="filter invert dark:invert-0"
         />
+      </div>
+      <div class="mx-auto text-center">
+        <p class="text-lg text-slate-600 dark:text-slate-400">
+          View attendees by table number
+        </p>
+        <TableSelection client:only="svelte" />
       </div>
     </div>
   </div>
