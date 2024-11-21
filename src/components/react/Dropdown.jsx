@@ -74,7 +74,7 @@ export default class DropDown extends React.Component {
                         className="select-search"
                         options={this.state.options}
                         search
-                        placeholder="Select your host's name"
+                        placeholder="Search by name"
                         value={this.state.selection}
                         onChange={(value) => this.onChange(value)}
                     />
