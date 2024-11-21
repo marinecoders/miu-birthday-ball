@@ -31,18 +31,11 @@ export default class DropDown extends React.Component {
                         Please make your way to
                     </p>
                 </div>
-                {/* <div className:list={["max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-inherit"]}> */}
                     <div className="max-w-6xl mx-auto mt-6 mb-10 text-center">
                         <h1 className="block text-5xl font-bold md:text-5xl lg:text-6xl text-red-700">
                             Table {this.state.table}
                         </h1>
                     </div>
-                {/* </div> */}
-                {/* <div className="flex justify-center mt-20">
-                    <div className="inline-flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs font-semibold leading-loose text-white transition-all bg-red-800 border border-transparent rounded-md hover:ring-2 focus:outline-none focus:ring-2 ring-offset-white focus:ring-red-500 hover:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                        <a href={"/table_map?table=" + this.state.table}>View Venue Map</a>
-                    </div>
-                </div> */}
             </div>
         );
     }
