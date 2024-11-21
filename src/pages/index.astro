@@ -11,33 +11,90 @@ import "../styles/global.css";
 
 ---
 <Layout title="">
-  <div
-    class=""
-  >
-    <div class="md:py-20">
-      <Hero
-        title="Welcome to the 249th Marine Corps Birthday Ball"
-        content="Find your table number"
-        padding="pt-12"
-      />
-      <div class="flex justify-center mt-10">
-        <DropDown client:only="react" />
-      </div>
-      <div class="flex justify-center my-12">
-        <Image 
-          src={miuLogo} 
-          alt="Marine Innovation" 
-          width="250%"
-          height="35%"
-          class="filter invert dark:invert-0"
+  <div class="theatre">
+    <div class="curtain-left z-10"></div>
+    <div class="curtain-right z-10"></div>
+    <div
+      class=""
+    >
+      <div class="md:py-20">
+        <Hero
+          title="Welcome to the 249th Marine Corps Birthday Ball"
+          content="Find your table number"
+          padding="pt-12"
         />
-      </div>
-      <div class="mx-auto text-center">
-        <p class="text-lg text-slate-600 dark:text-slate-400">
-          View attendees by table number
-        </p>
-        <TableSelection client:only="svelte" />
+        <div class="flex justify-center mt-10">
+          <DropDown client:only="react" />
+        </div>
+        <div class="flex justify-center my-12">
+          <Image 
+            src={miuLogo} 
+            alt="Marine Innovation" 
+            width="250%"
+            height="35%"
+            class="filter invert dark:invert-0"
+          />
+        </div>
+        <div class="mx-auto text-center">
+          <p class="text-lg text-slate-600 dark:text-slate-400">
+            View attendees by table number
+          </p>
+          <TableSelection client:only="svelte" />
+        </div>
       </div>
     </div>
   </div>
 </Layout>
+
+<style>
+
+.theatre {
+  height: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.curtain-left,
+.curtain-right {
+  position: absolute;
+  top: -300px;
+  bottom: -30px;
+  width: 61%;
+  background-color: rgb(255, 0, 10);
+  background-image: linear-gradient(
+    90deg,
+    rgba(204, 0, 10, 1) 30%,
+    transparent 50%,
+    rgba(204, 0, 10, 1) 80%,
+    transparent 100%
+  );
+  background-size: 90px;
+}
+
+.curtain-left {
+  left: -10%;
+  filter: drop-shadow(1px 6px 6px black);
+  box-shadow: -2px 0px 6px rgba(255, 255, 255, 0.4) inset,
+    0px 320px 40px rgba(0, 0, 0, 0.5) inset;
+}
+
+.curtain-right {
+  right: -10%;
+  filter: drop-shadow(1px 6px 6px black);
+  box-shadow: 2px 0px 6px rgba(255, 255, 255, 0.4) inset,
+    -0px 320px 40px rgba(0, 0, 0, 0.5) inset;
+}
+
+.theatre:hover .curtain-left {
+  transform: translateX(-100%) rotate(2deg);
+  transition: all 3s ease;
+  transform-origin: 20% bottom;
+}
+
+.theatre:hover .curtain-right {
+  transform: translateX(100%) rotate(-2deg);
+  transition: all 3s ease;
+  transform-origin: 20% bottom;
+}
+
+</style>
