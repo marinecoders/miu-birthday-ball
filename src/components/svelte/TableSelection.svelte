@@ -71,7 +71,7 @@
         on:click={() => (tableNumberSelected = tableNum)}
       >
         <img
-          src={"../../../public/table.svg"}
+          src={"../../../table.svg"}
           class="m-auto"
           alt="Table Icon"
         />
