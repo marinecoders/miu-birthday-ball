@@ -1,21 +1,31 @@
 ---
-import RedButton from '../buttons/RedButton.astro'
+import RedButton from "../buttons/RedButton.astro";
 
 interface Props {
-  title: string
-  content: string
-  link?: string
-  linkText?: string
-  padding: string
+  title: string;
+  content: string;
+  link?: string;
+  linkText?: string;
+  padding: string;
 }
 
-const { title, content, link = null, linkText = null, padding } = Astro.props
+const { title, content, link = null, linkText = null, padding } = Astro.props;
 ---
 
-<div class:list={["max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 pt-inherit", padding]}>
+<script>
+  function handleLoad() {
+    document.querySelector("h1").style.transform = "scale(1)";
+  }
+
+  window.addEventListener("load", handleLoad);
+</script>
+<div class:list={["max-w-[85rem] mx-auto px-4 pt-inherit pt-12", padding]}>
   <!-- Title -->
-  <div class="max-w-6xl mx-auto mt-5 text-center">
-    <h1 class="text-4xl font-bold md:text-5xl lg:text-6xl bg-gradient-to-r from-slate-800 via-slate-950 to-slate-800 dark:from-white dark:via-slate-50 dark:to-slate-200 inline-block text-transparent bg-clip-text">
+  <div class="max-w-6xl mx-auto text-center">
+    <h1
+      class="text-4xl font-bold bg-gradient-to-r from-slate-100 via-slate-50 to-slate-200 inline-block text-transparent bg-clip-text transform transition-transform duration-1000"
+      style="transform: scale(0.5);"
+    >
       {title}
     </h1>
   </div>
@@ -29,10 +39,16 @@ const { title, content, link = null, linkText = null, padding } = Astro.props
 
   <!-- Buttons -->
   {
-  link ?
-  <div class="grid w-full gap-3 mt-8 sm:inline-flex sm:justify-center">
-    <RedButton href={link} text={linkText} />
-  </div>
-  : ""} 
+    link ? (
+      <div class="grid w-full gap-3 mt-8 sm:inline-flex sm:justify-center">
+        <RedButton
+          href={link}
+          text={linkText}
+        />
+      </div>
+    ) : (
+      ""
+    )
+  }
   <!-- End Buttons -->
 </div>

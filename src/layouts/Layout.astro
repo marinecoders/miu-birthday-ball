@@ -1,44 +1,81 @@
 ---
 import codersLogo from "../../assets/Marine Coders Logo.png";
-import { Image } from 'astro:assets';
+import { Image } from "astro:assets";
 interface Props {
-  title?: string
+  title?: string;
 }
 
-const { title = null } = Astro.props
+const { title = null } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html
+  lang="en"
+  class="dark"
+>
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Astro description" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
+    <meta
+      name="description"
+      content="Astro description"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.svg"
+    />
+    <meta
+      name="generator"
+      content={Astro.generator}
+    />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap"
     />
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"
+    ></script>
     <title>MIU {title && "-"} {title}</title>
   </head>
-  <body class="bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-white font-rubik">
+  <body
+    class="bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-white font-rubik"
+  >
     <div class="h-screen overflow-y-scroll scrollbar-hide">
       <slot />
     </div>
-    <footer class="justify-center" style="display: flex; align-items: center">
-      <p style="text-align: center; flex: 4; padding: 0;" class="text-sm font-bold">
-          POWERED BY MARINE CODERS
-      </p>
-      <div style="flex: 1;" class=" items-center max-w-[85rem] px-4 sm:px-6 lg:px-8 pt-inherit" style="height=50%; width=50%;" >
-          <Image 
+    <footer class="justify-center my-4">
+      <a
+        href="https://marines.dev/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="grid grid-cols-4 items-center"
+      >
+        <p
+          style="text-align: center; flex: 4; padding: 0;"
+          class="text-sm font-bold text-center col-span-3 text-slate-400"
+        >
+          Powered by <span
+            class="ml-2 bg-gradient-to-r from-slate-200 via-slate-50 to-slate-100 inline-block text-transparent bg-clip-text tracking-wider"
+            >MARINE CODERS</span
+          >
+        </p>
+        <div
+          style="flex: 1;"
+          class="items-center max-w-[85rem] px-4 sm:px-6 lg:px-8 pt-inherit"
+          style="height=50%; width=50%;"
+        >
+          <Image
             width="50px"
             height="50px"
-            src={codersLogo} 
-            alt="Marine Innovation" 
+            src={codersLogo}
+            alt="Marine Innovation"
           />
-      </div>
+        </div>
+      </a>
     </footer>
   </body>
 </html>

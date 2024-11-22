@@ -37,6 +37,8 @@
       byTable: byTable,
       uniqueTableNumbers: uniqueTableNumbers,
     };
+
+    localStorage.setItem("attendees", JSON.stringify(attendeePromise));
   }
   getAttendees();
 
