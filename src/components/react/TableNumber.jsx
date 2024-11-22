@@ -27,7 +27,7 @@ export default class DropDown extends React.Component {
             <div className="max-w-[85rem] mx-auto px-4 pt-inherit pt-12">
                 <div className="max-w-6xl mx-auto text-center">
                 {this.state.name.toLowerCase().includes(funName.toLowerCase()) && <div>
-                    <img src={"../../../funFlag.svg"} alt="Fun Flag" className="mx-auto my-4 h-40 drop-shadow-xl" />
+                    <h2 class="text-9xl">🇬🇧</h2>
                     <p class="text-2xl my-2 text-red-700">Welcome to this side of the Pond!</p>
                 </div>}
                 {!this.state.name.toLowerCase().includes(funName.toLowerCase()) &&
