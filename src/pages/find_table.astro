@@ -31,17 +31,22 @@ const search = Astro.url.searchParams.get("search")! || "";
 
     let displaySVG;
     var colors = ["#A77C29"];
+    var scalar = 2;
+
+
+    var us = confetti.shapeFromText({ text: '🇺🇸', scalar });
+    var eagle = confetti.shapeFromText({ text: '🦅', scalar });
 
     switch (true) {
       case urlParams.get("name").toLowerCase().includes("erik rye"):
-        displaySVG = bee;
+        displaySVG = [bee];
         break;
       case urlParams.get("name").toLowerCase().includes("laura smith"):
-        displaySVG = flag;
+        displaySVG = [flag];
         colors = ["#000000"];
         break;
       default:
-        displaySVG = ega;
+        displaySVG = [ega, us, eagle];
     }
 
     var defaults = {
@@ -61,7 +66,7 @@ const search = Astro.url.searchParams.get("search")! || "";
         spread: 150,
         origin: { x: 0 },
         colors: colors,
-        shapes: [displaySVG],
+        shapes: displaySVG,
         flat: true,
       });
       confetti({
@@ -72,7 +77,7 @@ const search = Astro.url.searchParams.get("search")! || "";
         spread: 150,
         origin: { x: 1 },
         colors: colors,
-        shapes: [displaySVG],
+        shapes: displaySVG,
       });
     })();
   </script>
