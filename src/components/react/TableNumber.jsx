@@ -2,7 +2,7 @@ import React from "react";
 import 'react-select-search/style.css'
 
 
-let funName = "pierce-wrobel"
+let funName = "laura smith"
 let attendeesList = JSON.parse(localStorage.getItem('attendees'))
 
 
