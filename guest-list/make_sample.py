@@ -63,10 +63,10 @@ def main() -> None:
                 seats -= 1
 
     # A few cases worth testing: same name at two tables, no title, long name.
-    rows.append((3, "Sgt", "John", "Smith"))
-    rows.append((27, "Mr.", "John", "Smith"))
-    rows.append((33, "", "Taylor", "Morgan"))
-    rows.append((34, "Mrs.", "Alexandra-Catherine", "Montgomery-Fitzgerald"))
+    rows.append((TABLES[2], "Sgt", "John", "Smith"))
+    rows.append((TABLES[-3], "Mr.", "John", "Smith"))
+    rows.append((TABLES[-2], "", "Taylor", "Morgan"))
+    rows.append((TABLES[-1], "Mrs.", "Alexandra-Catherine", "Montgomery-Fitzgerald"))
     rows.sort(key=lambda r: (r[0], r[3], r[2]))
 
     wb = Workbook()

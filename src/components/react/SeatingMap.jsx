@@ -10,7 +10,11 @@ import { findTableRoute } from "../../lib/table-route.js";
 
 const MIN_WIDTH = 720;
 const MAX_WIDTH = 960;
-const [ceremony, podium, narrator, ...projectors] = floorPlan.obstacles;
+const { ceremony, podium, narrator, pow } = Object.fromEntries(floorPlan.obstacles.map(o => [o.id, o]));
+const projectors = floorPlan.obstacles.filter(o => o.id.startsWith("projector-"));
+const aisle = floorPlan.ceremonyAisle;
+const tableRange = `${floorPlan.tables[0].number}–${floorPlan.tables.at(-1).number}`;
+const rowCount = new Set(floorPlan.tables.map(table => table.row)).size;
 
 function getWidth() {
     return Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, window.innerWidth - 24));
@@ -33,8 +37,8 @@ function Doors({ x, y, direction = 1, label }) {
     </Group>;
 }
 
-// The reference plan's tables 8–41 become 1–34. Coordinates are shared with
-// the guest-list tools; sourceTable records the number in the reference image.
+// Three rows flank the clear ceremony aisle, numbered left to right from the podium.
+// Coordinates are shared with routing and the guest-list tools.
 export default function SeatingMap({ table, door }) {
     const [width, setWidth] = useState(getWidth);
     const [wider, setWider] = useState(false);
@@ -92,7 +96,7 @@ export default function SeatingMap({ table, door }) {
         <div ref={scroller}
             className="overflow-x-auto overscroll-x-contain rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
             style={{ maxWidth: width + 2, margin: "0 auto" }}
-            role="img" aria-label={`Ballroom floor plan, tables 1–34 in four rows. Entries 1–4 run right to left along the bottom wall. ${mine
+            role="img" aria-label={`Ballroom floor plan, tables ${tableRange} in ${rowCount} rows on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Entries 1–4 run right to left along the bottom wall. ${mine
                 ? `Table ${mine.number} is circled in red in seating row ${mine.row}, counting from the podium.`
                 : "The podium is at the top and the main entrance is at the bottom."} ${routeDescription}`}>
             <Stage width={width} height={floorPlan.height * scale}
@@ -103,10 +107,18 @@ export default function SeatingMap({ table, door }) {
                         fill="#f1f5f9" stroke="#475569" strokeWidth={1.2} closed />
                     <Rect {...floorPlan.ballroom}
                         fill="#fafaf9" stroke="#334155" strokeWidth={1.5} />
+                    <Group id="ceremony-aisle">
+                        <Rect {...aisle} height={aisle.height - 1} fill="#f1f5f9" />
+                        {[aisle.x, aisle.x + aisle.width].map(x =>
+                            <Line key={x} points={[x, aisle.y, x, aisle.y + aisle.height - 1]}
+                                stroke="#cbd5e1" strokeWidth={0.6} dash={[2, 2]} />)}
+                        <MapLabel x={aisle.x + 8} y={140} width={aisle.width - 16} height={20}
+                            text={"CEREMONY\nAISLE"} fontSize={3.5} fill="#64748b" lineHeight={1.4} />
+                    </Group>
                     {[302, 224, 148, 78].map((x, index) =>
                         <Doors key={`back-${x}`} x={x} y={220} label={`Entry ${index + 1}`} />)}
 
-                    {/* The removed front row stays open; the ceremony area remains. */}
+                    {/* The space ahead of the first seating row stays open. */}
                     {projectors.map(projector => <Group key={projector.id}>
                         <Rect {...projector} fill="#e2e8d3" cornerRadius={1.5} />
                         <MapLabel x={projector.x} y={24} width={50} text="PROJECTOR" fontSize={3.5} fill="#526442" />
@@ -123,9 +135,13 @@ export default function SeatingMap({ table, door }) {
                         <Line points={[200, 34, 208, 34]} stroke="#cbd5e1" strokeWidth={0.6} />
                     </Group>
 
-                    {/* VIP positions follow the highlighted tables in the reference. */}
-                    <Circle x={43} y={53} radius={3} fill="#fff0bf" stroke="#b8954a" strokeWidth={0.6} />
-                    <MapLabel x={49} y={49} width={48} text="VIP TABLES" fontSize={3.5} align="left" />
+                    <Group id="pow-table">
+                        <Circle x={pow.x + pow.width / 2} y={pow.y + pow.height / 2}
+                            radius={pow.width / 2} id="pow-table-top" fill="#ffffff"
+                            stroke="#475569" strokeWidth={0.8} />
+                        <MapLabel x={pow.x} y={pow.y} width={pow.width} height={pow.height}
+                            text={"POW\nMIA"} fontSize={3.4} fill="#334155" fontStyle="bold" lineHeight={1.2} />
+                    </Group>
 
                     <Rect x={13} y={250} width={39} height={41} fill="#e2e8f0"
                         stroke="#94a3b8" strokeWidth={0.7} />
@@ -142,8 +158,8 @@ export default function SeatingMap({ table, door }) {
                         const radius = floorPlan.tableRadius;
                         return <Group key={t.number} id={`table-${t.number}`}>
                             <Circle x={t.x} y={t.y} radius={radius}
-                                fill={isMine ? "#FFC72C" : t.vip ? "#fff0bf" : "#e5e7eb"}
-                                stroke={t.vip ? "#b8954a" : "#334155"} strokeWidth={isMine ? 1.1 : 0.7} />
+                                fill={isMine ? "#FFC72C" : "#e5e7eb"}
+                                stroke="#334155" strokeWidth={isMine ? 1.1 : 0.7} />
                             <MapLabel x={t.x - radius} y={t.y - radius}
                                 width={radius * 2} height={radius * 2}
                                 text={String(t.number)} fontSize={6.2} fontStyle="bold" fill="#0B0F17" />
