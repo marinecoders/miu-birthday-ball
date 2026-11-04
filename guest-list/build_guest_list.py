@@ -25,7 +25,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 HERE = Path(__file__).parent
 OUT = HERE.parent / "public" / "attendees.enc.json"
 KEY_FILE = HERE / ".key"
-SITE = "https://birthday.marines.dev"
+SITE = "https://marinecoders.github.io/miu-birthday-ball"  # change if you add a custom domain
 MAP_TABLES = set(range(1, 51))  # tables drawn on the floor map
 COLUMNS = {"table": "table", "title": "title", "first name": "first_name", "last name": "last_name"}
 
@@ -111,7 +111,7 @@ def main() -> None:
 
     print(f"Encrypted {len(guests)} guests at {len({g['table'] for g in guests})} tables into {OUT}")
     print(f"\nQR code link:\n  {SITE}/#k={b64url(key)}")
-    print(f"Testing on this computer:\n  http://localhost:4321/#k={b64url(key)}")
+    print(f"Testing on this computer:\n  http://localhost:4321/miu-birthday-ball/#k={b64url(key)}")
     if problems:
         print(f"\n{len(problems)} thing(s) to check:")
         for p in problems:

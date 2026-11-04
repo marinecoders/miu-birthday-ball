@@ -2,6 +2,7 @@ import React from "react";
 import SelectSearch from "react-select-search";
 import 'react-select-search/style.css'
 import { loadAttendees, fullName, getKey } from "../../lib/attendees.js";
+import { url } from "../../lib/url.js";
 
 export default class DropDown extends React.Component {
 
@@ -16,11 +17,11 @@ export default class DropDown extends React.Component {
 
     componentDidMount() {
         if (!getKey()) {
-            window.location.href = '/error'
+            window.location.href = url('error/')
             return
         }
         loadAttendees().catch(() => {
-            window.location.href = '/error'
+            window.location.href = url('error/')
         })
         loadAttendees().then(({ attendees }) => {
             let options = []
@@ -48,7 +49,7 @@ export default class DropDown extends React.Component {
             return (
                 <div className="flex justify-center mt-10">
                     <div className="inline-flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs font-semibold leading-loose text-white transition-all bg-red-800 border border-transparent rounded-md hover:ring-2 focus:outline-none focus:ring-2 ring-offset-white focus:ring-red-500 hover:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                        <a href={"find_table?" + new URLSearchParams({ name: this.state.info.name, table: this.state.table })}>Find Your Table</a>
+                        <a href={url("find_table/?") + new URLSearchParams({ name: this.state.info.name, table: this.state.table })}>Find Your Table</a>
                     </div>
                 </div>
             );

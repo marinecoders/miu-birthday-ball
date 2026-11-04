@@ -1,5 +1,5 @@
 <script>
-  import TableIcon from "../../../assets/table.svg";
+  import { url } from "../../lib/url.js";
   import { fade } from "svelte/transition";
   import { loadAttendees } from "../../lib/attendees.js";
 
@@ -40,7 +40,7 @@
         on:click={() => (tableNumberSelected = tableNum)}
       >
         <img
-          src={"../../../table.svg"}
+          src={url("table.svg")}
           class="m-auto"
           alt="Table Icon"
         />

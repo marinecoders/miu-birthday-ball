@@ -5,7 +5,9 @@
 // (https://site/#k=KEY). The part after # never leaves the phone, so the
 // key isn't sent to the web host. It's remembered on the phone so the guest
 // can move between pages and come back later.
-const ATTENDEES_URL = "/attendees.enc.json";
+import { url } from "./url.js";
+
+const ATTENDEES_URL = url("attendees.enc.json");
 const STORAGE_KEY = "guestListKey";
 
 let cache;

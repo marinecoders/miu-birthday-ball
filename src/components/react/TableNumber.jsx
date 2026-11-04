@@ -1,6 +1,7 @@
 import React from "react";
 import 'react-select-search/style.css'
 import { loadAttendees, fullName } from "../../lib/attendees.js";
+import { url } from "../../lib/url.js";
 
 
 let funName = "laura smith"
@@ -56,7 +57,7 @@ export default class DropDown extends React.Component {
                 Table {this.state.table}
                 </button>
                 <a
-                    href={"table_map?" + new URLSearchParams({ table: this.state.table })}
+                    href={url("table_map/?") + new URLSearchParams({ table: this.state.table })}
                     className="inline-flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs font-semibold leading-loose text-white transition-all bg-red-800 border border-transparent rounded-md hover:ring-2 focus:outline-none focus:ring-2 focus:ring-red-500 hover:ring-red-500"
                 >
                     Show me on the map

@@ -19,7 +19,7 @@ pip install openpyxl cryptography
 python guest-list/build_guest_list.py path/to/seating_chart.xlsx
 ```
 
-This writes `public/attendees.enc.json` and prints the QR code link (`https://birthday.marines.dev/#k=...`). Then commit and push `public/attendees.enc.json` to publish.
+This writes `public/attendees.enc.json` and prints the QR code link (`https://marinecoders.github.io/miu-birthday-ball/#k=...`). Then commit and push `public/attendees.enc.json` to publish.
 
 It also lists problems to check: rows with no name, table numbers that aren't numbers or aren't on the floor map (1-50), and names that appear more than once.
 
