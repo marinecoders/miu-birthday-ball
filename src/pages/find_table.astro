@@ -101,7 +101,7 @@ import { BUTTON_SECONDARY } from "../lib/ui.js";
 
     <div class="mt-10 rounded-3xl border border-white/10 bg-ink-800/60 px-6 py-10 sm:px-12">
       <p class="text-center text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">
-        {EVENT.date}
+        {EVENT.messageDate}
       </p>
       <h2
         id="cmc-message"
@@ -197,10 +197,16 @@ import { BUTTON_SECONDARY } from "../lib/ui.js";
 
   <div class="mt-14 flex justify-center px-5">
     <a
+      id="back-to-search"
       class={BUTTON_SECONDARY}
       href={url()}
     >
       Back to search
     </a>
   </div>
+  <script>
+    import { withKey } from "../lib/attendees.js";
+    const back = document.getElementById("back-to-search");
+    back.href = withKey(back.getAttribute("href"));
+  </script>
 </Layout>

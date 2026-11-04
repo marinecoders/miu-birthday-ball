@@ -1,7 +1,7 @@
 import React from "react";
 import SelectSearch from "react-select-search";
 import 'react-select-search/style.css'
-import { loadAttendees, fullName, getKey } from "../../lib/attendees.js";
+import { loadAttendees, fullName, getKey, withKey } from "../../lib/attendees.js";
 import { url } from "../../lib/url.js";
 import { BUTTON_PRIMARY } from "../../lib/ui.js";
 
@@ -48,7 +48,7 @@ export default class DropDown extends React.Component {
 
     getButton = () => {
         if (this.state.selection == "") return null;
-        const href = url("find_table/?") + new URLSearchParams({ name: this.state.info.name, table: this.state.table })
+        const href = withKey(url("find_table/?") + new URLSearchParams({ name: this.state.info.name, table: this.state.table }))
         return (
             <a href={href} className={BUTTON_PRIMARY + " mt-5 w-full"}>
                 Find my table
