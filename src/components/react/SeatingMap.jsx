@@ -2,6 +2,10 @@ import React from "react";
 import { Stage, Layer, Circle, Group, Text, Rect, Line } from 'react-konva';
 import HandDrawnCircle from "./HandDrawnCircle.jsx";
 import YouAreHere from "./YouAreHere.jsx";
+import { getDoor } from "../../lib/attendees.js";
+import DOOR_SETTINGS from "../../lib/doors.json";
+
+const DOORS = DOOR_SETTINGS.doors;
 
 // The map is drawn on a 360-unit-wide grid scaled to BASE_SIZE pixels
 // (height is 55% of width). Keep it at least MIN_WIDTH so table numbers stay
@@ -386,6 +390,8 @@ export default class SeatingMap extends React.Component {
         this.state = ({
             tables: INITIAL_STATE,
             table: String(props.table ?? urlParams.get('table') ?? ""),
+            // Which door the guest scanned in at (from their door's QR code).
+            door: String(props.door ?? getDoor() ?? ""),
             wider: false
         })
     }
@@ -638,12 +644,15 @@ export default class SeatingMap extends React.Component {
                                 strokeWidth={Math.max(2.5, (1.6/360) * BASE_SIZE)}
                             />
                         )}
-                        {/* Entrance: inside the "V" at the bottom center of the room. */}
-                        <YouAreHere
-                            x={BASE_SIZE / 2}
-                            y={BASE_SIZE * .55 - (8/360) * BASE_SIZE}
-                            unit={BASE_SIZE / 360}
-                        />
+                        {/* The door this guest scanned in at; positions are in src/lib/doors.json. */}
+                        {DOORS[this.state.door] && (
+                            <YouAreHere
+                                x={(DOORS[this.state.door].x / 360) * BASE_SIZE}
+                                y={(DOORS[this.state.door].y / 360) * BASE_SIZE}
+                                unit={BASE_SIZE / 360}
+                                label={DOORS[this.state.door].label}
+                            />
+                        )}
                     </Layer>
                 </Stage>
                 </div>

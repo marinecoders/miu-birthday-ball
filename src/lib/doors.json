@@ -1,0 +1,29 @@
+{
+  "_help": "One entry per ballroom door. The key (\"1\"-\"4\") is what each door's QR code carries. name: shown on the printed QR sign. x, y: where the You Are Here pin goes on the floor map, on its 360-wide by 198-tall grid ((0,0) is top-left). label: where the pin's label goes, \"above\", \"below\", \"left\", or \"right\" (use left/right for doors on the side walls). Doors 2-4 are PLACEHOLDER positions until the real door locations are known.",
+  "doors": {
+    "1": {
+      "name": "Door 1 - Main entrance",
+      "x": 180,
+      "y": 190,
+      "label": "above"
+    },
+    "2": {
+      "name": "Door 2 (placeholder: left wall)",
+      "x": 14,
+      "y": 125,
+      "label": "right"
+    },
+    "3": {
+      "name": "Door 3 (placeholder: right wall)",
+      "x": 346,
+      "y": 125,
+      "label": "left"
+    },
+    "4": {
+      "name": "Door 4 (placeholder: top left)",
+      "x": 100,
+      "y": 10,
+      "label": "below"
+    }
+  }
+}

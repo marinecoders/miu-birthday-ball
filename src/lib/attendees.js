@@ -9,14 +9,15 @@ import { url } from "./url.js";
 
 const ATTENDEES_URL = url("attendees.enc.json");
 const STORAGE_KEY = "guestListKey";
+const DOOR_STORAGE_KEY = "guestDoor";
 
 let cache;
 
-function storage(action, value) {
+function storage(action, value, name = STORAGE_KEY) {
   try {
-    if (action === "get") return localStorage.getItem(STORAGE_KEY);
-    if (action === "set") localStorage.setItem(STORAGE_KEY, value);
-    if (action === "remove") localStorage.removeItem(STORAGE_KEY);
+    if (action === "get") return localStorage.getItem(name);
+    if (action === "set") localStorage.setItem(name, value);
+    if (action === "remove") localStorage.removeItem(name);
   } catch {
     // Storage blocked (private browsing etc.); the key just isn't remembered.
   }
@@ -38,12 +39,25 @@ export function getKey() {
   return storage("get");
 }
 
-// Adds the key to a link between pages, so the next page can read the list
-// even if the phone didn't save the key (some QR scanner apps open links in
-// a built-in browser that doesn't keep it).
+// The door the guest scanned in at (each door's QR code adds &d=N), else the
+// one remembered from an earlier scan. Null if unknown.
+export function getDoor() {
+  const fromLink = new URLSearchParams(window.location.hash.slice(1)).get("d");
+  if (fromLink) {
+    storage("set", fromLink, DOOR_STORAGE_KEY);
+    return fromLink;
+  }
+  return storage("get", null, DOOR_STORAGE_KEY);
+}
+
+// Adds the key (and door) to a link between pages, so the next page works
+// even if the phone didn't save them (some QR scanner apps open links in a
+// built-in browser that doesn't keep them).
 export function withKey(href) {
   const key = getKey();
-  return key ? `${href}#k=${key}` : href;
+  if (!key) return href;
+  const door = getDoor();
+  return `${href}#k=${key}${door ? `&d=${encodeURIComponent(door)}` : ""}`;
 }
 
 async function decrypt(file, key) {
