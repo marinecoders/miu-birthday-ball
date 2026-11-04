@@ -21,7 +21,9 @@ test('each door pin sits on the map, just outside the ballroom south wall', () =
 });
 
 test('door pins line up with the doors drawn on the map, Door 1 on the far right', () => {
-    const drawn = mapCode.match(/\[([\d,\s]+)\]\.map\(x => <Doors /);
+    // Matches both `[...].map(x => <Doors` and `[...].map((x, index) => <Doors`
+    // (with or without a line break before <Doors).
+    const drawn = mapCode.match(/\[([\d,\s]+)\]\.map\(\(?x(?:,\s*\w+)?\)?\s*=>\s*<Doors /);
     assert.ok(drawn, 'SeatingMap.jsx draws its doors from a list of x positions');
     const eastToWest = drawn[1].split(',').map(Number).sort((a, b) => b - a);
     assert.deepEqual(Object.values(doors).map(d => d.x), eastToWest, 'Doors 1-4 run right to left');
