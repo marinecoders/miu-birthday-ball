@@ -1,7 +1,7 @@
 <script>
   import { url } from "../../lib/url.js";
   import { slide } from "svelte/transition";
-  import { loadAttendees, fullName } from "../../lib/attendees.js";
+  import { loadAttendees, fullName, withKey } from "../../lib/attendees.js";
   import { BUTTON_SECONDARY } from "../../lib/ui.js";
 
   let attendeePromise;
@@ -39,7 +39,7 @@
       </ul>
       <a
         class={BUTTON_SECONDARY + " mt-6"}
-        href={url("table_map/?") + new URLSearchParams({ table: tableNumberSelected })}
+        href={withKey(url("table_map/?") + new URLSearchParams({ table: tableNumberSelected }))}
       >
         Show on the map
       </a>

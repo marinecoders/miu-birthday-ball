@@ -1,5 +1,5 @@
 import React from "react";
-import { loadAttendees, fullName } from "../../lib/attendees.js";
+import { loadAttendees, fullName, withKey } from "../../lib/attendees.js";
 import { url } from "../../lib/url.js";
 import { EVENT } from "../../lib/event.js";
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from "../../lib/ui.js";
@@ -57,7 +57,7 @@ export default class TableNumber extends React.Component {
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
                     <a
-                        href={url("table_map/?") + new URLSearchParams({ table: this.state.table })}
+                        href={withKey(url("table_map/?") + new URLSearchParams({ table: this.state.table }))}
                         className={BUTTON_PRIMARY}
                     >
                         Show me on the map

@@ -23,6 +23,15 @@ This writes `public/attendees.enc.json` and prints the QR code link (`https://ma
 
 It also lists problems to check: rows with no name, table numbers that aren't numbers or aren't on the floor map (1-50), and names that appear more than once.
 
+## Make the QR code
+
+```bash
+pip install segno
+python guest-list/make_qr_code.py
+```
+
+This writes `guest-list/qr-code.svg` (best for printing) and `guest-list/qr-code.png`. Both are git-ignored because the code contains the key. The QR code only depends on the key, so it keeps working when you update the guest list. Print it at least 2 inches (5 cm) wide and test-scan the printout.
+
 ## The key
 
 - Created on the first run and saved in `guest-list/.key`. It is ignored by git. **Don't commit it, and back it up somewhere safe**, like a password manager.

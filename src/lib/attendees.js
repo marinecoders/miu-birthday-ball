@@ -38,6 +38,14 @@ export function getKey() {
   return storage("get");
 }
 
+// Adds the key to a link between pages, so the next page can read the list
+// even if the phone didn't save the key (some QR scanner apps open links in
+// a built-in browser that doesn't keep it).
+export function withKey(href) {
+  const key = getKey();
+  return key ? `${href}#k=${key}` : href;
+}
+
 async function decrypt(file, key) {
   const cryptoKey = await crypto.subtle.importKey("raw", fromBase64Url(key), "AES-GCM", false, ["decrypt"]);
   const plaintext = await crypto.subtle.decrypt(

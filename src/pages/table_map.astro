@@ -29,10 +29,13 @@ import { BUTTON_SECONDARY } from "../lib/ui.js";
   </div>
 
   <script>
+    import { withKey } from "../lib/attendees.js";
     const table = new URLSearchParams(window.location.search).get("table") || "";
     document.getElementById("map-table").textContent = table;
+    const back = document.getElementById("map-back");
+    back.href = withKey(back.getAttribute("href"));
     // Go back to the guest's result page if they came from it.
-    document.getElementById("map-back").addEventListener("click", (event) => {
+    back.addEventListener("click", (event) => {
       if (document.referrer && new URL(document.referrer).origin === location.origin) {
         event.preventDefault();
         history.back();
