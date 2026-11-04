@@ -1,13 +1,14 @@
 import React from "react";
-import 'react-select-search/style.css'
 import { loadAttendees, fullName } from "../../lib/attendees.js";
 import { url } from "../../lib/url.js";
+import { EVENT } from "../../lib/event.js";
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from "../../lib/ui.js";
 
 
 let funName = "laura smith"
 
 
-export default class DropDown extends React.Component {
+export default class TableNumber extends React.Component {
 
     constructor() {
         super();
@@ -26,55 +27,59 @@ export default class DropDown extends React.Component {
     componentDidMount() {
         loadAttendees().then(({ byTable }) => {
             this.setState({ tablemates: byTable[this.state.table] || [] })
-        });
+        }).catch(() => {});
     }
 
     render() {
+        const isFunName = this.state.name.toLowerCase().includes(funName)
         return(
-            <div>
-            <div className="max-w-[85rem] mx-auto px-4 pt-inherit pt-12">
-                <div className="max-w-6xl mx-auto text-center">
-                {this.state.name.toLowerCase().includes(funName.toLowerCase()) && <div>
-                    <h2 className="text-9xl">🇬🇧</h2>
-                    <p className="text-2xl my-2 text-red-700">Welcome to this side of the Pond!</p>
-                </div>}
-                {!this.state.name.toLowerCase().includes(funName.toLowerCase()) &&
-                <h1 className="block text-4xl font-bold">
-                    {"Welcome to the 249th Marine Corps Birthday Ball"}
-                </h1>}
-                </div>
-            </div>
-            <div className="mx-auto mt-5 text-center text-lg text-slate-400">
-                <p className="text-slate-300 tracking-wider text-xl">{this.state.name}</p>
+            <section className="mx-auto max-w-xl px-5 pt-12 text-center sm:pt-16 rise">
+                {isFunName ? (
+                    <div>
+                        <p className="text-7xl sm:text-8xl" aria-hidden="true">🇬🇧</p>
+                        <p className="mt-3 font-serif text-2xl text-scarlet-light">Welcome to this side of the Pond!</p>
+                    </div>
+                ) : (
+                    <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">
+                        {EVENT.title}
+                    </p>
+                )}
 
-                <p className="italic">
-                Please make your way to
-                </p>
-            </div>
-                <div className="text-center">
-                <button className="block text-5xl font-bold mx-auto my-6 text-red-700" onClick={() => this.setState({           showAttendeesByTable: !this.state.showAttendeesByTable })}
-                >
-                Table {this.state.table}
-                </button>
-                <a
-                    href={url("table_map/?") + new URLSearchParams({ table: this.state.table })}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs font-semibold leading-loose text-white transition-all bg-red-800 border border-transparent rounded-md hover:ring-2 focus:outline-none focus:ring-2 focus:ring-red-500 hover:ring-red-500"
-                >
-                    Show me on the map
-                </a>
+                <h1 className="mt-6 font-serif text-3xl font-semibold text-white text-balance sm:text-4xl">
+                    {this.state.name}
+                </h1>
+                <p className="mt-2 text-slate-400">Please make your way to</p>
+
+                <div className="mx-auto mt-6 flex aspect-square w-48 flex-col items-center justify-center rounded-full border-2 border-gold/60 bg-ink-800/80 shadow-glow sm:w-56">
+                    <span className="text-xs font-semibold uppercase tracking-[0.3em] text-gold-soft">Table</span>
+                    <span className="font-serif text-7xl font-bold leading-none text-gold sm:text-8xl">{this.state.table}</span>
                 </div>
-            {this.state.showAttendeesByTable && (
-                <div className="mx-12 my-10 rounded-3xl text-center font-serif">
-                    <ul className="text-xl text-slate-50 tracking-wide">
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                    <a
+                        href={url("table_map/?") + new URLSearchParams({ table: this.state.table })}
+                        className={BUTTON_PRIMARY}
+                    >
+                        Show me on the map
+                    </a>
+                    <button
+                        type="button"
+                        className={BUTTON_SECONDARY}
+                        aria-expanded={this.state.showAttendeesByTable}
+                        onClick={() => this.setState({ showAttendeesByTable: !this.state.showAttendeesByTable })}
+                    >
+                        {this.state.showAttendeesByTable ? "Hide tablemates" : "Who's at my table?"}
+                    </button>
+                </div>
+
+                {this.state.showAttendeesByTable && (
+                    <ul className="mx-auto mt-6 max-w-sm space-y-1.5 rounded-3xl border border-white/10 bg-ink-800/70 p-6 font-serif text-xl text-slate-100">
                         {this.state.tablemates.map((attendee, index) => (
-                            <li key={index}>
-                            {fullName(attendee)}
-                            </li>
+                            <li key={index}>{fullName(attendee)}</li>
                         ))}
                     </ul>
-                </div>
-            )}
-            </div>
+                )}
+            </section>
         );
     }
 }

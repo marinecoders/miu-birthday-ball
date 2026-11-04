@@ -1,27 +1,15 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import Card from '../components/Card.astro'
-import Hero from '../components/marinecorps/Hero.astro'
-import Mission from '../components/marinecorps/Mission.astro'
-import Impact from '../components/marinecorps/Impact.astro'
-import Countdown from '../components/marinecorps/Countdown.astro'
-import Padding from '../components/utils/Padding.astro'
-import Products from '../components/marinecorps/Products.astro'
-
-import { url } from "../lib/url.js"
-import "../styles/global.css"
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/marinecorps/Hero.astro";
+import { url } from "../lib/url.js";
 ---
 
-<Layout title="404">
-  <div class="">
-    <div class="md:py-20">
-      <Hero
-        title="404"
-        content="Page not found."
-        link={url()}
-        linkText='GO HOME'
-        padding='pt-24'
-      />
-    </div>
-  </div>
+<Layout title="Page not found">
+  <Hero
+    title="Page not found"
+    content="That page doesn't exist."
+    link={url()}
+    linkText="Go home"
+    padding="pt-16 sm:pt-24"
+  />
 </Layout>

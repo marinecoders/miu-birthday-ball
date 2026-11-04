@@ -1,54 +1,56 @@
 ---
+import { Image } from "astro:assets";
+import ega from "../../../assets/EGA-White.png";
 import RedButton from "../buttons/RedButton.astro";
+import { EVENT } from "../../lib/event.js";
 
 interface Props {
-  title: string;
-  content: string;
+  title?: string;
+  content?: string;
   link?: string;
   linkText?: string;
-  padding: string;
+  padding?: string;
 }
 
-const { title, content, link = null, linkText = null, padding } = Astro.props;
+const {
+  title = EVENT.title,
+  content = null,
+  link = null,
+  linkText = null,
+  padding = "pt-12 sm:pt-16",
+} = Astro.props;
 ---
 
-<script>
-  function handleLoad() {
-    document.querySelector("h1").style.transform = "scale(1)";
-  }
-
-  window.addEventListener("load", handleLoad);
-</script>
-<div class:list={["max-w-[85rem] mx-auto px-4 pt-inherit pt-12", padding]}>
-  <!-- Title -->
-  <div class="max-w-6xl mx-auto text-center">
-    <h1
-      class="text-4xl font-bold bg-gradient-to-r from-slate-100 via-slate-50 to-slate-200 inline-block text-transparent bg-clip-text transform transition-transform duration-1000"
-      style="transform: scale(0.5);"
-    >
-      {title}
-    </h1>
-  </div>
-  <!-- End Title -->
-
-  <div class="max-w-3xl mx-auto mt-5 text-center">
-    <p class="text-lg text-slate-600 dark:text-slate-400 tracking-wide">
-      {content}
-    </p>
-  </div>
-
-  <!-- Buttons -->
+<header class:list={["mx-auto max-w-3xl px-5 text-center rise", padding]}>
+  <Image
+    src={ega}
+    alt="Eagle, Globe, and Anchor"
+    width={96}
+    height={96}
+    class="mx-auto h-20 w-auto opacity-95 drop-shadow-[0_4px_24px_rgba(255,199,44,0.25)] sm:h-24"
+    loading="eager"
+  />
+  <p class="mt-6 text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">
+    {EVENT.date}
+  </p>
+  <h1 class="mt-3 font-serif text-4xl font-semibold leading-tight text-balance text-white sm:text-5xl md:text-6xl">
+    {title}
+  </h1>
   {
-    link ? (
-      <div class="grid w-full gap-3 mt-8 sm:inline-flex sm:justify-center">
+    content && (
+      <p class="mx-auto mt-4 max-w-xl text-base text-slate-300 text-balance sm:text-lg">
+        {content}
+      </p>
+    )
+  }
+  {
+    link && (
+      <div class="mt-8 flex justify-center">
         <RedButton
           href={link}
           text={linkText}
         />
       </div>
-    ) : (
-      ""
     )
   }
-  <!-- End Buttons -->
-</div>
+</header>

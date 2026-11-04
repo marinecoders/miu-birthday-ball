@@ -2,101 +2,73 @@
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/marinecorps/Hero.astro";
 import DropDown from "../components/react/Dropdown.jsx";
-import RedButton from "../components/buttons/RedButton.astro";
+import TableSelection from "../components/svelte/TableSelection.svelte";
 import miuLogo from "../../assets/Marine Innovation Unit - White.png";
 import { Image } from "astro:assets";
-import TableSelection from "../components/svelte/TableSelection.svelte";
-
-import "../styles/global.css";
 ---
 
-<Layout title="">
+<Layout>
   <div
-    class="theatre"
-    tabindex="0"
-    onclick=""
+    class="curtain curtain-left"
+    aria-hidden="true"
   >
-    <div class="curtain-left z-10"></div>
-    <div class="curtain-right z-10"></div>
-    <div class="">
-      <div class="md:py-20">
-        <Hero
-          title="Welcome to the 249th Marine Corps Birthday Ball"
-          content="Find your table number"
-          padding="pt-12"
-        />
-        <div class="flex justify-center mt-10">
-          <DropDown client:only="react" />
-        </div>
-        <div class="flex justify-center my-12">
-          <Image
-            src={miuLogo}
-            alt="Marine Innovation"
-            width="250%"
-            height="35%"
-            class="filter invert dark:invert-0"
-          />
-        </div>
-        <div class="mx-auto text-center">
-          <p class="text-lg text-slate-600 dark:text-slate-400">
-            View attendees by table number
-          </p>
-          <TableSelection client:only="svelte" />
-        </div>
-      </div>
+  </div>
+  <div
+    class="curtain curtain-right"
+    aria-hidden="true"
+  >
+  </div>
+
+  <script>
+    // Once the curtains have opened, take them out of the page entirely.
+    for (const curtain of document.querySelectorAll(".curtain")) {
+      curtain.addEventListener("animationend", () => curtain.remove());
+      setTimeout(() => curtain.remove(), 3000);
+    }
+  </script>
+
+  <Hero content="Search for your name to find your table." />
+
+  <section
+    class="relative z-10 mx-auto mt-10 w-full max-w-lg px-5 rise"
+    style="animation-delay: 150ms"
+    aria-label="Find your table"
+  >
+    <div class="rounded-3xl border border-white/10 bg-ink-800/80 p-5 shadow-glow backdrop-blur sm:p-7">
+      <label
+        for="guest-search"
+        class="mb-3 block text-sm font-medium uppercase tracking-[0.2em] text-slate-400"
+      >
+        Your name
+      </label>
+      <DropDown client:only="react" />
     </div>
+  </section>
+
+  <section
+    class="mx-auto mt-16 w-full max-w-4xl px-5"
+    aria-labelledby="by-table"
+  >
+    <div class="divider">
+      <h2
+        id="by-table"
+        class="shrink-0 text-xs font-semibold uppercase tracking-[0.3em] text-gold-soft"
+      >
+        Browse by table
+      </h2>
+    </div>
+    <p class="mt-3 text-center text-sm text-slate-400">
+      Tap a table to see who's sitting there.
+    </p>
+    <TableSelection client:only="svelte" />
+  </section>
+
+  <div class="mt-16 flex justify-center px-5">
+    <Image
+      src={miuLogo}
+      alt="Marine Innovation Unit"
+      width={220}
+      class="h-auto w-44 opacity-70 sm:w-52"
+    />
   </div>
 </Layout>
-
-<style>
-  .theatre {
-    height: auto;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .curtain-left,
-  .curtain-right {
-    position: absolute;
-    top: -300px;
-    bottom: -30px;
-    width: 61%;
-    background-color: rgb(255, 0, 10);
-    background-image: linear-gradient(
-      90deg,
-      rgba(204, 0, 10, 1) 30%,
-      transparent 50%,
-      rgba(204, 0, 10, 1) 80%,
-      transparent 100%
-    );
-    background-size: 90px;
-  }
-
-  .curtain-left {
-    left: -10%;
-    filter: drop-shadow(1px 6px 6px black);
-    box-shadow:
-      -2px 0px 6px rgba(255, 255, 255, 0.4) inset,
-      0px 320px 40px rgba(0, 0, 0, 0.5) inset;
-  }
-
-  .curtain-right {
-    right: -10%;
-    filter: drop-shadow(1px 6px 6px black);
-    box-shadow:
-      2px 0px 6px rgba(255, 255, 255, 0.4) inset,
-      -0px 320px 40px rgba(0, 0, 0, 0.5) inset;
-  }
-
-  .theatre:hover .curtain-left {
-    transform: translateX(-100%) rotate(2deg);
-    transition: all 3s ease;
-    transform-origin: 20% bottom;
-  }
-
-  .theatre:hover .curtain-right {
-    transform: translateX(100%) rotate(-2deg);
-    transition: all 3s ease;
-    transform-origin: 20% bottom;
-  }
-</style>

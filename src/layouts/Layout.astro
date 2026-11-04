@@ -2,6 +2,9 @@
 import codersLogo from "../../assets/Marine Coders Logo.png";
 import { Image } from "astro:assets";
 import { url } from "../lib/url.js";
+import { EVENT } from "../lib/event.js";
+import "../styles/global.css";
+
 interface Props {
   title?: string;
 }
@@ -17,65 +20,61 @@ const { title = null } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta
-      name="description"
-      content="Astro description"
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <meta
-      name="viewport"
-      content="width=device-width"
+      name="description"
+      content={`Find your table at the ${EVENT.title}.`}
+    />
+    <meta
+      name="theme-color"
+      content="#0B0F17"
+    />
+    <meta
+      name="robots"
+      content="noindex"
     />
     <link
       rel="icon"
       type="image/svg+xml"
       href={url("favicon.svg")}
     />
-    <meta
-      name="generator"
-      content={Astro.generator}
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
     />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Rubik:wght@300;400;500;700&display=swap"
     />
-    <script
-      src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"
-    ></script>
-    <title>MIU {title && "-"} {title}</title>
+    <title>{title ? `${title} · ` : ""}{EVENT.title}</title>
   </head>
   <body
-    class="bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-white font-rubik"
+    class="min-h-dvh flex flex-col text-slate-100 font-rubik antialiased selection:bg-gold selection:text-ink"
   >
-    <div class="h-screen overflow-y-scroll scrollbar-hide">
+    <main class="flex-1 w-full">
       <slot />
-    </div>
-    <footer class="justify-center my-4">
+    </main>
+    <footer class="py-8 px-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
       <a
         href="https://marines.dev/"
         target="_blank"
         rel="noopener noreferrer"
-        class="grid grid-cols-4 items-center"
+        class="mx-auto flex w-fit items-center gap-3 rounded-full px-4 py-2 text-xs font-semibold tracking-[0.2em] text-slate-400 transition hover:text-slate-200 hover:bg-white/5"
       >
-        <p
-          style="text-align: center; flex: 4; padding: 0;"
-          class="text-sm font-bold text-center col-span-3 text-slate-400"
-        >
-          Powered by <span
-            class="ml-2 bg-gradient-to-r from-slate-200 via-slate-50 to-slate-100 inline-block text-transparent bg-clip-text tracking-wider"
-            >MARINE CODERS</span
-          >
-        </p>
-        <div
-          style="flex: 1;"
-          class="items-center max-w-[85rem] px-4 sm:px-6 lg:px-8 pt-inherit"
-          style="height=50%; width=50%;"
-        >
-          <Image
-            width="50px"
-            height="50px"
-            src={codersLogo}
-            alt="Marine Innovation"
-          />
-        </div>
+        <span>POWERED BY MARINE CODERS</span>
+        <Image
+          width={28}
+          height={28}
+          src={codersLogo}
+          alt=""
+        />
       </a>
     </footer>
   </body>
