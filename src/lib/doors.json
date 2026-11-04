@@ -1,28 +1,28 @@
 {
-  "_help": "One entry per ballroom door. The key (\"1\"-\"4\") is what each door's QR code carries. name: shown on the printed QR sign. x, y: where the You Are Here pin goes on the floor map, on its 360-wide by 198-tall grid ((0,0) is top-left; south is the bottom). label: where the pin's label goes, \"above\", \"below\", \"left\", or \"right\". The doors are evenly spaced along the south wall, numbered west to east; adjust x and y to match the real door locations.",
+  "_help": "One entry per ballroom door. The key (\"1\"-\"4\") is what each door's QR code carries. name: shown on the printed QR sign. x, y: where the You Are Here pin goes, in the same units as src/lib/floor-plan.json (360 wide by 304 tall, (0,0) top-left). The four doors match the doors drawn on the ballroom's south wall (y=220) in SeatingMap.jsx, numbered west to east; pins sit just outside each door, in the foyer. label: where the pin's label goes, \"above\", \"below\", \"left\", or \"right\".",
   "doors": {
     "1": {
       "name": "Door 1 - South wall, west",
-      "x": 62,
-      "y": 173,
+      "x": 78,
+      "y": 237,
       "label": "above"
     },
     "2": {
-      "name": "Door 2 - South wall, center-west",
-      "x": 144,
-      "y": 180,
+      "name": "Door 2 - South wall, center-west (main entrance)",
+      "x": 148,
+      "y": 237,
       "label": "above"
     },
     "3": {
       "name": "Door 3 - South wall, center-east",
-      "x": 216,
-      "y": 180,
+      "x": 224,
+      "y": 237,
       "label": "above"
     },
     "4": {
       "name": "Door 4 - South wall, east",
-      "x": 298,
-      "y": 173,
+      "x": 302,
+      "y": 237,
       "label": "above"
     }
   }

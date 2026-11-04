@@ -1,665 +1,138 @@
-import React from "react";
-import { Stage, Layer, Circle, Group, Text, Rect, Line } from 'react-konva';
+import React, { useEffect, useRef, useState } from "react";
+import { Stage, Layer, Circle, Group, Text, Rect, Line, Arrow } from "react-konva";
 import HandDrawnCircle from "./HandDrawnCircle.jsx";
 import YouAreHere from "./YouAreHere.jsx";
+import floorPlan from "../../lib/floor-plan.json";
+import doorSettings from "../../lib/doors.json";
 import { getDoor } from "../../lib/attendees.js";
-import DOOR_SETTINGS from "../../lib/doors.json";
 
-const DOORS = DOOR_SETTINGS.doors;
-
-// The map is drawn on a 360-unit-wide grid scaled to BASE_SIZE pixels
-// (height is 55% of width). Keep it at least MIN_WIDTH so table numbers stay
-// readable on phones (guests swipe sideways), and at most MAX_WIDTH on desktop.
 const MIN_WIDTH = 720;
 const MAX_WIDTH = 960;
 
 function getWidth() {
-    let width = window.innerWidth;
-    if (window.innerHeight < width * .55 - 68) {
-        width = window.innerHeight / .55;
-    }
-    return Math.round(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, width)));
+    return Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, window.innerWidth - 24));
 }
 
-var BASE_SIZE = getWidth()
+function MapLabel({ x, y, width, height = 8, text, fontSize = 4, fill = "#64748b", ...props }) {
+    return <Text x={x} y={y} width={width} height={height} text={text}
+        fontSize={fontSize} fill={fill} fontFamily="Arial, sans-serif"
+        align="center" verticalAlign="middle" {...props} />;
+}
 
-function generateShapes() {
-    return [
-        {
-            id: "33",
-            x: (70/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 33,
-            rotation: 0
-        },
-        {
-            id: "31",
-            x: (82/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 31,
-            rotation: 0
-        },
-        {
-            id: "19",
-            x: (94/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 19,
-            rotation: 0
-        },
-        {
-            id: "17",
-            x: (106/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 17,
-            rotation: 0
-        },
-        {
-            id: "15",
-            x: (118/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 15,
-            rotation: 0
-        },
-        {
-            id: "13",
-            x: (129/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 13,
-            rotation: 0
-        },
-        {
-            id: "36",
-            x: BASE_SIZE - (70/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 36,
-            rotation: 0
-        },
-        {
-            id: "34",
-            x: BASE_SIZE - (82/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 34,
-            rotation: 0
-        },
-        {
-            id: "28",
-            x:  BASE_SIZE - (94/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 28,
-            rotation: 0
-        },
-        {
-            id: "26",
-            x:  BASE_SIZE - (106/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 26,
-            rotation: 0
-        },
-        {
-            id: "22",
-            x:  BASE_SIZE - (118/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 22,
-            rotation: 0
-        },
-        {
-            id: "20",
-            x:  BASE_SIZE - (129/360) * BASE_SIZE,
-            y: (24/360) * BASE_SIZE,
-            number: 20,
-            rotation: 0
-        },
-        {
-            id: "41",
-            x:  (38/360) * BASE_SIZE,
-            y: (48/360) * BASE_SIZE,
-            number: 41,
-            rotation: 0
-        },
-        {
-            id: "37",
-            x:  (46/360) * BASE_SIZE,
-            y: (42/360) * BASE_SIZE,
-            number: 37,
-            rotation: 0
-        },
-        {
-            id: "43",
-            x:  (49/360) * BASE_SIZE,
-            y: (63/360) * BASE_SIZE,
-            number: 43,
-            rotation: 0
-        },
-        {
-            id: "45",
-            x:  (58/360) * BASE_SIZE,
-            y: (55/360) * BASE_SIZE,
-            number: 45,
-            rotation: 0
-        },
-        {
-            id: "39",
-            x:  (66/360) * BASE_SIZE,
-            y: (48/360) * BASE_SIZE,
-            number: 39,
-            rotation: 0
-        },
-        {
-            id: "47",
-            x:  (74/360) * BASE_SIZE,
-            y: (65/360) * BASE_SIZE,
-            number: 47,
-            rotation: 0
-        },
-        {
-            id: "49",
-            x:  (66/360) * BASE_SIZE,
-            y: (74/360) * BASE_SIZE,
-            number: 49,
-            rotation: 0
-        },
-        {
-            id: "29",
-            x:  (85/360) * BASE_SIZE,
-            y: (43/360) * BASE_SIZE,
-            number: 29,
-            rotation: 0
-        },
-        {
-            id: "27",
-            x:  (100/360) * BASE_SIZE,
-            y: (43/360) * BASE_SIZE,
-            number: 27,
-            rotation: 0
-        },
-        {
-            id: "35",
-            x:  (94/360) * BASE_SIZE,
-            y: (70/360) * BASE_SIZE,
-            number: 35,
-            rotation: 0
-        },
-        {
-            id: "25",
-            x:  (103/360) * BASE_SIZE,
-            y: (60/360) * BASE_SIZE,
-            number: 25,
-            rotation: 0
-        },
-        {
-            id: "23",
-            x:  (113/360) * BASE_SIZE,
-            y: (60/360) * BASE_SIZE,
-            number: 23,
-            rotation: 0
-        },
-        {
-            id: "21",
-            x:  (123/360) * BASE_SIZE,
-            y: (60/360) * BASE_SIZE,
-            number: 21,
-            rotation: 0
-        },
-        {
-            id: "11",
-            x:  (90/360) * BASE_SIZE,
-            y: (130/360) * BASE_SIZE,
-            number: 11,
-            rotation: 0
-        },
-        {
-            id: "7",
-            x:  (100/360) * BASE_SIZE,
-            y: (110/360) * BASE_SIZE,
-            number: 7,
-            rotation: 0
-        },
-        {
-            id: "9",
-            x:  (108/360) * BASE_SIZE,
-            y: (123/360) * BASE_SIZE,
-            number: 9,
-            rotation: 0
-        },
-        {
-            id: "1",
-            x:  (120/360) * BASE_SIZE,
-            y: (110/360) * BASE_SIZE,
-            number: 1,
-            rotation: 0
-        },
-        {
-            id: "3",
-            x:  (124/360) * BASE_SIZE,
-            y: (123/360) * BASE_SIZE,
-            number: 3,
-            rotation: 0
-        },
-        {
-            id: "5",
-            x:  (128/360) * BASE_SIZE,
-            y: (136/360) * BASE_SIZE,
-            number: 5,
-            rotation: 0
-        },
-        {
-            id: "2",
-            x:  BASE_SIZE -(120/360) * BASE_SIZE,
-            y: (110/360) * BASE_SIZE,
-            number: 2,
-            rotation: 0
-        },
-        {
-            id: "4",
-            x:  BASE_SIZE-(124/360) * BASE_SIZE,
-            y: (123/360) * BASE_SIZE,
-            number: 4,
-            rotation: 0
-        },
-        {
-            id: "6",
-            x:  BASE_SIZE-(128/360) * BASE_SIZE,
-            y: (136/360) * BASE_SIZE,
-            number: 6,
-            rotation: 0
-        },
-        {
-            id: "8",
-            x:  BASE_SIZE - (100/360) * BASE_SIZE,
-            y: (110/360) * BASE_SIZE,
-            number: 8,
-            rotation: 0
-        },
-        {
-            id: "10",
-            x:  BASE_SIZE - (108/360) * BASE_SIZE,
-            y: (123/360) * BASE_SIZE,
-            number: 10,
-            rotation: 0
-        },
-        {
-            id: "12",
-            x:  BASE_SIZE - (90/360) * BASE_SIZE,
-            y: (130/360) * BASE_SIZE,
-            number: 12,
-            rotation: 0
-        },
-        {
-            id: "18",
-            x:  BASE_SIZE - (103/360) * BASE_SIZE,
-            y: (60/360) * BASE_SIZE,
-            number: 18,
-            rotation: 0
-        },
-        {
-            id: "16",
-            x:  BASE_SIZE - (113/360) * BASE_SIZE,
-            y: (60/360) * BASE_SIZE,
-            number: 16,
-            rotation: 0
-        },
-        {
-            id: "14",
-            x:  BASE_SIZE - (123/360) * BASE_SIZE,
-            y: (60/360) * BASE_SIZE,
-            number: 14,
-            rotation: 0
-        },
-        {
-            id: "30",
-            x:  BASE_SIZE - (85/360) * BASE_SIZE,
-            y: (43/360) * BASE_SIZE,
-            number: 30,
-            rotation: 0
-        },
-        {
-            id: "24",
-            x:  BASE_SIZE - (100/360) * BASE_SIZE,
-            y: (43/360) * BASE_SIZE,
-            number: 24,
-            rotation: 0
-        },
-        {
-            id: "32",
-            x:  BASE_SIZE - (94/360) * BASE_SIZE,
-            y: (70/360) * BASE_SIZE,
-            number: 32,
-            rotation: 0
-        },
-        {
-            id: "48",
-            x:  BASE_SIZE - (74/360) * BASE_SIZE,
-            y: (65/360) * BASE_SIZE,
-            number: 48,
-            rotation: 0
-        },
-        {
-            id: "50",
-            x:  BASE_SIZE - (66/360) * BASE_SIZE,
-            y: (74/360) * BASE_SIZE,
-            number: 50,
-            rotation: 0
-        },
-        {
-            id: "46",
-            x:  BASE_SIZE - (49/360) * BASE_SIZE,
-            y: (63/360) * BASE_SIZE,
-            number: 46,
-            rotation: 0
-        },
-        {
-            id: "44",
-            x:  BASE_SIZE - (58/360) * BASE_SIZE,
-            y: (55/360) * BASE_SIZE,
-            number: 44,
-            rotation: 0
-        },
-        {
-            id: "38",
-            x:  BASE_SIZE - (66/360) * BASE_SIZE,
-            y: (48/360) * BASE_SIZE,
-            number: 38,
-            rotation: 0
-        },
-        {
-            id: "42",
-            x:  BASE_SIZE - (38/360) * BASE_SIZE,
-            y: (48/360) * BASE_SIZE,
-            number: 42,
-            rotation: 0
-        },
-        {
-            id: "40",
-            x:  BASE_SIZE - (46/360) * BASE_SIZE,
-            y: (42/360) * BASE_SIZE,
-            number: 40,
-            rotation: 0
-        }
-    ];
-  }
+// A gap in the wall with a pair of open door leaves, in floor-plan units.
+function Doors({ x, y, direction = 1 }) {
+    return <Group listening={false}>
+        <Line points={[x - 9, y, x + 9, y]} stroke="#fafaf9" strokeWidth={3} />
+        <Line points={[x - 9, y, x - 9, y + 8 * direction, x, y, x + 9, y + 8 * direction, x + 9, y]}
+            stroke="#94a3b8" strokeWidth={0.7} lineJoin="round" />
+    </Group>;
+}
 
-const INITIAL_STATE = generateShapes();
+// The reference plan's tables 8–41 become 1–34. Coordinates are shared with
+// the guest-list tools; sourceTable records the number in the reference image.
+export default function SeatingMap({ table, door }) {
+    const [width, setWidth] = useState(getWidth);
+    const [wider, setWider] = useState(false);
+    const scroller = useRef(null);
+    const selectedNumber = String(table ?? new URLSearchParams(window.location.search).get("table") ?? "");
+    const mine = floorPlan.tables.find(t => String(t.number) === selectedNumber);
+    const scale = width / floorPlan.width;
+    // "You are here": the door on the guest's QR code (src/lib/doors.json),
+    // or the main entrance when the link has no door.
+    const [doorNumber] = useState(() => String(door ?? getDoor() ?? ""));
+    const here = doorSettings.doors[doorNumber] ?? { ...floorPlan.entrance, label: "above" };
 
-// Floor map with the guest's table circled. Pass `table`, or it reads ?table=.
-export default class SeatingMap extends React.Component {
+    useEffect(() => {
+        const resize = () => setWidth(getWidth());
+        window.addEventListener("resize", resize);
+        return () => window.removeEventListener("resize", resize);
+    }, []);
 
-    constructor(props) {
-        super(props);
-        let urlParams = new URLSearchParams(window.location.search);
-        this.scroller = React.createRef();
-        this.state = ({
-            tables: INITIAL_STATE,
-            table: String(props.table ?? urlParams.get('table') ?? ""),
-            // Which door the guest scanned in at (from their door's QR code).
-            door: String(props.door ?? getDoor() ?? ""),
-            wider: false
-        })
-    }
+    useEffect(() => {
+        const box = scroller.current;
+        const center = () => {
+            const needsScroll = box.scrollWidth > box.clientWidth + 1;
+            setWider(needsScroll);
+            if (needsScroll && mine) box.scrollLeft = mine.x * scale - box.clientWidth / 2;
+        };
+        center();
+        const observer = new ResizeObserver(center);
+        observer.observe(box);
+        return () => observer.disconnect();
+    }, [width, selectedNumber]);
 
-    componentDidMount() {
-        window.addEventListener("resize", this.onWindowResize);
-        this.centerOnTable();
-    }
+    return <>
+        <div ref={scroller}
+            className="overflow-x-auto overscroll-x-contain rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
+            style={{ maxWidth: width + 2, margin: "0 auto" }}
+            role="img" aria-label={`Ballroom floor plan, tables 1–34 in four rows. ${mine
+                ? `Table ${mine.number} is circled in red in seating row ${mine.row}, counting from the podium.`
+                : "The podium is at the top and the main entrance is at the bottom."}`}>
+            <Stage width={width} height={floorPlan.height * scale}
+                style={{ pointerEvents: "none", backgroundColor: "#fafaf9", width }}>
+                <Layer scaleX={scale} scaleY={scale} listening={false}>
+                    {/* Ballroom and the foyer/bar area, oriented as in the reference. */}
+                    <Line points={[12, 220, 12, 292, 244, 292, 244, 248, 280, 248, 324, 284, 350, 262, 343, 220]}
+                        fill="#f1f5f9" stroke="#475569" strokeWidth={1.2} closed />
+                    <Rect x={12} y={18} width={336} height={202}
+                        fill="#fafaf9" stroke="#334155" strokeWidth={1.5} />
+                    {[78, 148, 224, 302].map(x => <Doors key={`back-${x}`} x={x} y={220} />)}
 
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.onWindowResize);
-    }
+                    {/* The removed front row stays open; the ceremony area remains. */}
+                    {[47, 220].map(x => <Group key={x}>
+                        <Rect x={x} y={22} width={50} height={13} fill="#e2e8d3" cornerRadius={1.5} />
+                        <MapLabel x={x} y={24} width={50} text="PROJECTOR" fontSize={3.5} fill="#526442" />
+                    </Group>)}
+                    <Rect x={136} y={42} width={60} height={57} fill="#e7e5e4"
+                        stroke="#cbd5e1" strokeWidth={0.7} cornerRadius={2} />
+                    <MapLabel x={139} y={60} width={54} height={20} text={"CEREMONY\nAREA"}
+                        fontSize={4.5} fill="#64748b" lineHeight={1.4} />
+                    <Rect x={151} y={26} width={30} height={12} fill="#334155" cornerRadius={1} />
+                    <MapLabel x={151} y={28} width={30} text="PODIUM" fontSize={4} fill="#ffffff" fontStyle="bold" />
+                    <Group id="narrator-podium">
+                        <MapLabel x={186} y={25} width={36} text="NARRATOR" fontSize={3.2} />
+                        <Rect x={198} y={32} width={12} height={9} fill="#334155" cornerRadius={1} />
+                        <Line points={[200, 34, 208, 34]} stroke="#cbd5e1" strokeWidth={0.6} />
+                    </Group>
+                    <Arrow points={[148, 237, 148, 226, 163, 226, 163, 105]}
+                        stroke="#94a3b8" fill="#94a3b8" strokeWidth={1} dash={[3, 3]}
+                        pointerLength={4} pointerWidth={3} lineJoin="round" />
 
-    // On screens narrower than the map, scroll so the guest's table is in view.
-    centerOnTable = () => {
-        const box = this.scroller.current;
-        if (!box) return;
-        const wider = box.scrollWidth > box.clientWidth + 1;
-        if (wider !== this.state.wider) this.setState({ wider });
-        const mine = this.state.tables.find(t => String(t.number) === this.state.table);
-        if (wider && mine) box.scrollLeft = mine.x - box.clientWidth / 2;
-    }
+                    {/* VIP positions follow the highlighted tables in the reference. */}
+                    <Circle x={43} y={53} radius={3} fill="#fff0bf" stroke="#b8954a" strokeWidth={0.6} />
+                    <MapLabel x={49} y={49} width={48} text="VIP TABLES" fontSize={3.5} align="left" />
 
-    onWindowResize = () => {
-        clearTimeout(this.resizeLag)
-        this.resizeLag = setTimeout(() => {
-            BASE_SIZE = getWidth()
-            this.setState({ tables: generateShapes() }, this.centerOnTable)
-        }, 200)
-    }
+                    <Rect x={13} y={250} width={39} height={41} fill="#e2e8f0"
+                        stroke="#94a3b8" strokeWidth={0.7} />
+                    <MapLabel x={74} y={251} width={140} text="FOYER" fontSize={5} fill="#64748b" letterSpacing={1.2} />
+                    {[77, 139, 201].map(x => <Group key={`bar-${x}`}>
+                        <Rect x={x} y={276} width={34} height={9} fill="#cbd5e1" cornerRadius={1} />
+                        <MapLabel x={x} y={277} width={34} height={7} text="BAR" fontSize={3.8} fill="#334155" />
+                    </Group>)}
 
-    render() {
-       let tables = this.state.tables
-       const mine = tables.find(t => String(t.number) === this.state.table)
-        return (
-            <React.Fragment>
-                <div ref={this.scroller} className="overflow-x-auto overscroll-x-contain rounded-2xl border border-white/10 shadow-2xl shadow-black/40" style={{ maxWidth: BASE_SIZE + 2, margin: "0 auto" }}>
-                <Stage style={{pointerEvents: "none", backgroundColor: "#fafaf9", width: BASE_SIZE}} width={BASE_SIZE} height={BASE_SIZE * .55}>
-                    <Layer style={{ overflow: "auto"}}>
-                        <Rect
-                            x={(4/360) * BASE_SIZE}
-                            y={(4/360) * BASE_SIZE}
-                            width={(15/360) * BASE_SIZE}
-                            height={(60/360) * BASE_SIZE}
-                            fill="#292524"
-                        />
-                        <Rect
-                            x={(4/360) * BASE_SIZE}
-                            y={(4/360) * BASE_SIZE}
-                            width={(60/360) * BASE_SIZE}
-                            height={(15/360) * BASE_SIZE}
-                            fill="#292524"
-                        />
-                        <Rect
-                            x={(4/360) * BASE_SIZE}
-                            y={(50/360) * BASE_SIZE}
-                            width={(50/360) * BASE_SIZE}
-                            height={(7/360) * BASE_SIZE}
-                            rotation={-45}
-                            fill="#292524"
-                        />
-                        <Rect
-                            x={BASE_SIZE - (19/360) * BASE_SIZE}
-                            y={(4/360) * BASE_SIZE}
-                            width={(15/360) * BASE_SIZE}
-                            height={(60/360) * BASE_SIZE}
-                            fill="#292524"
-                        />
-                        <Rect
-                            x={BASE_SIZE - (64/360) * BASE_SIZE}
-                            y={(4/360) * BASE_SIZE}
-                            width={(60/360) * BASE_SIZE}
-                            height={(15/360) * BASE_SIZE}
-                            fill="#292524"
-                        />
-                        <Rect
-                            x={BASE_SIZE - (50/360) * BASE_SIZE}
-                            y={(4/360) * BASE_SIZE}
-                            width={(50/360) * BASE_SIZE}
-                            height={(7/360) * BASE_SIZE}
-                            rotation={45}
-                            fill="#292524"
-                        />
-                        <Rect
-                            x={(BASE_SIZE) / 2 - (45/360) * BASE_SIZE}
-                            y={(4/360) * BASE_SIZE}
-                            width={(90/360) * BASE_SIZE}
-                            height={(92.5/360) * BASE_SIZE}
-                            fill="#292524"
-                        />
-                        <Line
-                            points={[(4/360) * BASE_SIZE, (4/360) * BASE_SIZE - 2.5,
-                                (4/360) * BASE_SIZE, BASE_SIZE * .55 - (4/360) * BASE_SIZE,
-                                BASE_SIZE /4 -(45/360) * BASE_SIZE, BASE_SIZE * .55 -(4/360) * BASE_SIZE,
-                                BASE_SIZE /4 -(45/360) * BASE_SIZE, BASE_SIZE * .55 -(18/360) * BASE_SIZE,
-                                BASE_SIZE /2 -(45/360) * BASE_SIZE, BASE_SIZE * .55 -(18/360) * BASE_SIZE,
-                                BASE_SIZE /2 - (20/360) * BASE_SIZE, BASE_SIZE * .55,
-                            ]}
-                            stroke='#292524'
-                            strokeWidth={5}
-                            closed= {false}
-                        />
-                        <Line
-                            points={[(4/360) * BASE_SIZE,(4/360) * BASE_SIZE, BASE_SIZE - (4/360) * BASE_SIZE, (4/360) * BASE_SIZE,
-                                BASE_SIZE - (4/360) * BASE_SIZE, BASE_SIZE * .55 - (4/360) * BASE_SIZE,
-                                BASE_SIZE * 3 /4 +(45/360) * BASE_SIZE, BASE_SIZE * .55 -(4/360) * BASE_SIZE,
-                                BASE_SIZE * 3  /4 +(45/360) * BASE_SIZE, BASE_SIZE * .55 -(18/360) * BASE_SIZE,
-                                BASE_SIZE  /2 +(45/360) * BASE_SIZE, BASE_SIZE * .55 -(18/360) * BASE_SIZE,
-                                BASE_SIZE /2 + (20/360) * BASE_SIZE, BASE_SIZE * .55,
-                            ]}
-                            stroke='#292524'
-                            strokeWidth={5}
-                            closed= {false}
-                        />
-                        <Line
-                            points={[BASE_SIZE - (32/360) * BASE_SIZE, (42/360) * BASE_SIZE,
-                                BASE_SIZE - (30/360) * BASE_SIZE, (50/360) * BASE_SIZE,
-                                BASE_SIZE - (63/360) * BASE_SIZE, (85/360) * BASE_SIZE,
-                                BASE_SIZE - (74/360) * BASE_SIZE, (85/360) * BASE_SIZE,
-                                BASE_SIZE - (83/360) * BASE_SIZE, (74/360) * BASE_SIZE,
-                                BASE_SIZE - (80/360) * BASE_SIZE, (65/360) * BASE_SIZE,
-                                BASE_SIZE - (50/360) * BASE_SIZE, (34/360) * BASE_SIZE,
-                                BASE_SIZE - (42/360) * BASE_SIZE, (34/360) * BASE_SIZE,
-                                BASE_SIZE - (31/360) * BASE_SIZE, (43/360) * BASE_SIZE]}
-                            stroke='#292524'
-                            strokeWidth={(5/360) * BASE_SIZE}
-                            closed= {false}
-                        />
-                        <Line
-                            points={[(32/360) * BASE_SIZE, (42/360) * BASE_SIZE,
-                            (30/360) * BASE_SIZE, (50/360) * BASE_SIZE,
-                            (63/360) * BASE_SIZE, (85/360) * BASE_SIZE,
-                            (74/360) * BASE_SIZE, (85/360) * BASE_SIZE,
-                            (83/360) * BASE_SIZE, (74/360) * BASE_SIZE,
-                            (80/360) * BASE_SIZE, (65/360) * BASE_SIZE,
-                            (50/360) * BASE_SIZE, (34/360) * BASE_SIZE,
-                            (42/360) * BASE_SIZE, (34/360) * BASE_SIZE,
-                            (31/360) * BASE_SIZE, (43/360) * BASE_SIZE]}
-                            stroke='#292524'
-                            strokeWidth={(5/360) * BASE_SIZE}
-                            closed= {false}
-                        />
-                        <Line
-                            points={[BASE_SIZE * .55 * 3 / 8, BASE_SIZE * .55 -(18/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3 / 8, BASE_SIZE * .35
-                            ]}
-                            stroke='#292524'
-                            strokeWidth={(5/360) * BASE_SIZE}
-                            closed= {false}
-                        />
-                        <Line
-                            points={[
-                            BASE_SIZE * .55 * 3 / 8, BASE_SIZE * .35,
-                            (BASE_SIZE * .55 * 3 / 8) - (10/360) * BASE_SIZE + ((BASE_SIZE / 2 - (45/360) * BASE_SIZE) - (BASE_SIZE * .55 * 3 / 8)) / 2 - ((19/360) * BASE_SIZE), (94/360) * BASE_SIZE - (15/360) * BASE_SIZE + (BASE_SIZE * .35 - (94/360) * BASE_SIZE) /2 + ((19/360) * BASE_SIZE),
-                            (BASE_SIZE * .55 * 3 / 8) - (10/360) * BASE_SIZE + ((BASE_SIZE / 2 - (45/360) * BASE_SIZE) - (BASE_SIZE * .55 * 3 / 8)) / 2 - ((18/360) * BASE_SIZE), (94/360) * BASE_SIZE - (15/360) * BASE_SIZE + (BASE_SIZE * .35 - (94/360) * BASE_SIZE) /2 + ((16/360) * BASE_SIZE),
-                            (BASE_SIZE * .55 * 3 / 8) - (10/360) * BASE_SIZE + ((BASE_SIZE / 2 - (45/360) * BASE_SIZE) - (BASE_SIZE * .55 * 3 / 8)) / 2 - ((17/360) * BASE_SIZE), (94/360) * BASE_SIZE - (15/360) * BASE_SIZE + (BASE_SIZE * .35 - (94/360) * BASE_SIZE) /2 + ((13/360) * BASE_SIZE),
-                            (BASE_SIZE * .55 * 3 / 8) - (10/360) * BASE_SIZE + ((BASE_SIZE / 2 - (45/360) * BASE_SIZE) - (BASE_SIZE * .55 * 3 / 8)) / 2 - ((15/360) * BASE_SIZE), (94/360) * BASE_SIZE - (15/360) * BASE_SIZE + (BASE_SIZE * .35 - (94/360) * BASE_SIZE) /2 + ((10/360) * BASE_SIZE),
-                            (BASE_SIZE * .55 * 3 / 8) - (10/360) * BASE_SIZE + ((BASE_SIZE / 2 - (45/360) * BASE_SIZE) - (BASE_SIZE * .55 * 3 / 8)) / 2 - ((10/360) * BASE_SIZE), (94/360) * BASE_SIZE - (15/360) * BASE_SIZE + (BASE_SIZE * .35 - (94/360) * BASE_SIZE) /2 + ((5/360) * BASE_SIZE),
-                            (BASE_SIZE * .55 * 3 / 8) - (10/360) * BASE_SIZE + ((BASE_SIZE / 2 - (45/360) * BASE_SIZE) - (BASE_SIZE * .55 * 3 / 8)) / 2, (94/360) * BASE_SIZE - (15/360) * BASE_SIZE + (BASE_SIZE * .35 - (94/360) * BASE_SIZE) /2,
-                            (BASE_SIZE) / 2 - (45/360) * BASE_SIZE, (94/360) * BASE_SIZE
-                            ]}
-                            tension={.4}
-                            stroke='#292524'
-                            strokeWidth={(5/360) * BASE_SIZE}
-                            closed= {false}
-                        />
-                        
-                        <Line
-                            points={[
-                            BASE_SIZE * .55 * 3/2 - (10/360) * BASE_SIZE, BASE_SIZE * .35 + (2/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (12/360) * BASE_SIZE, BASE_SIZE * .35 - (10/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (15/360) * BASE_SIZE, BASE_SIZE * .35 - (19/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (17/360) * BASE_SIZE, BASE_SIZE * .35 - (23/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (20/360) * BASE_SIZE, BASE_SIZE * .35 - (26/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (23/360) * BASE_SIZE, BASE_SIZE * .35 - (28/360) * BASE_SIZE,
-                            (BASE_SIZE / 2 + (45/360) * BASE_SIZE + (10/360) * BASE_SIZE) + ((BASE_SIZE * .55 * 3/2 - (10/360) * BASE_SIZE) - (BASE_SIZE / 2 + (45/360) * BASE_SIZE)) /2, (94/360) * BASE_SIZE - (15/360) * BASE_SIZE + (BASE_SIZE * .35 - (94/360) * BASE_SIZE) /2,
-                            (BASE_SIZE) / 2 + (45/360) * BASE_SIZE, (94/360) * BASE_SIZE
-                            ]}
-                            tension={.4}
-                            stroke='#292524'
-                            strokeWidth={(5/360) * BASE_SIZE}
-                            closed= {false}
-                        />
-                        
-                        <Line
-                            points={[BASE_SIZE * .55 * 3/2 - (10/360) * BASE_SIZE, BASE_SIZE * .55 -(18/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (10.2/360) * BASE_SIZE, BASE_SIZE * .35 
-                            ]}
-                            stroke='#292524'
-                            tension = {99}
-                            strokeWidth={(5/360) * BASE_SIZE}
-                            closed= {false}
-                        />
-                        <Line
-                            points={[
-                            BASE_SIZE * .55 * 3/2 - (10/360) * BASE_SIZE, BASE_SIZE * .35 + (2/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (12/360) * BASE_SIZE, BASE_SIZE * .35 - (10/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (15/360) * BASE_SIZE, BASE_SIZE * .35 - (19/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (17/360) * BASE_SIZE, BASE_SIZE * .35 - (23/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (20/360) * BASE_SIZE, BASE_SIZE * .35 - (26/360) * BASE_SIZE,
-                            BASE_SIZE * .55 * 3/2 - (23/360) * BASE_SIZE, BASE_SIZE * .35 - (28/360) * BASE_SIZE,
-                            (BASE_SIZE / 2 + (45/360) * BASE_SIZE + (10/360) * BASE_SIZE) + ((BASE_SIZE * .55 * 3/2 - (10/360) * BASE_SIZE) - (BASE_SIZE / 2 + (45/360) * BASE_SIZE)) /2, (94/360) * BASE_SIZE - (15/360) * BASE_SIZE + (BASE_SIZE * .35 - (94/360) * BASE_SIZE) /2,
-                            (BASE_SIZE) / 2 + (45/360) * BASE_SIZE, (94/360) * BASE_SIZE
-                            ]}
-                            tension={.4}
-                            stroke='#292524'
-                            strokeWidth={(5/360) * BASE_SIZE}
-                            closed= {false}
-                        />
-                    </Layer>
-                    <Layer style={{overflow: "auto"}}>
-                        {tables.map((table) => {
-                        const isMine = table === mine
-                        const r = (5/360) * BASE_SIZE
-                        return (
-                            <Group
-                                key={table.id}
-                                id={table.id}
-                            >
-                                <Circle
-                                    x={table.x}
-                                    y={table.y}
-                                    radius={r}
-                                    fill={isMine ? '#FFC72C' : '#e5e7eb'}
-                                    stroke={'#292524'}
-                                    strokeWidth={(isMine ? 1.5 : 1)/360 * BASE_SIZE}
-                                    fillAfterStrokeEnabled={true}
-                                />
-                                <Text
-                                    x={table.x - r}
-                                    y={table.y - r}
-                                    width={r * 2}
-                                    height={r * 2}
-                                    fontStyle={"bold"}
-                                    fontSize={(5.5/360) * BASE_SIZE}
-                                    text={String(table.number)}
-                                    fill="#0B0F17"
-                                    align="center"
-                                    verticalAlign="middle"
-                                />
-                            </Group>
-                        );
-                        })}
-                        {mine && (
-                            <HandDrawnCircle
-                                x={mine.x}
-                                y={mine.y}
-                                radius={(9/360) * BASE_SIZE}
-                                seed={mine.number}
-                                strokeWidth={Math.max(2.5, (1.6/360) * BASE_SIZE)}
-                            />
-                        )}
-                        {/* The door this guest scanned in at; positions are in src/lib/doors.json. */}
-                        {DOORS[this.state.door] && (
-                            <YouAreHere
-                                x={(DOORS[this.state.door].x / 360) * BASE_SIZE}
-                                y={(DOORS[this.state.door].y / 360) * BASE_SIZE}
-                                unit={BASE_SIZE / 360}
-                                label={DOORS[this.state.door].label}
-                            />
-                        )}
-                    </Layer>
-                </Stage>
-                </div>
-                {this.state.wider && (
-                    <p className="mt-2 text-center text-xs text-slate-400">Swipe sideways to see the whole room</p>
-                )}
-            </React.Fragment>
-        );
-    }
+                    {floorPlan.tables.map(t => {
+                        const isMine = t === mine;
+                        const radius = floorPlan.tableRadius;
+                        return <Group key={t.number} id={`table-${t.number}`}>
+                            <Circle x={t.x} y={t.y} radius={radius}
+                                fill={isMine ? "#FFC72C" : t.vip ? "#fff0bf" : "#e5e7eb"}
+                                stroke={t.vip ? "#b8954a" : "#334155"} strokeWidth={isMine ? 1.1 : 0.7} />
+                            <MapLabel x={t.x - radius} y={t.y - radius}
+                                width={radius * 2} height={radius * 2}
+                                text={String(t.number)} fontSize={6.2} fontStyle="bold" fill="#0B0F17" />
+                        </Group>;
+                    })}
+                    {mine && <HandDrawnCircle x={mine.x} y={mine.y} radius={11}
+                        seed={mine.number} strokeWidth={1.2} />}
+                </Layer>
+                <Layer listening={false}>
+                    <YouAreHere x={here.x * scale} y={here.y * scale} unit={scale} label={here.label} />
+                </Layer>
+            </Stage>
+        </div>
+        {wider && <p className="mt-2 text-center text-xs text-slate-400">Swipe sideways to see the whole room</p>}
+        {selectedNumber && !mine && <p className="mt-2 text-center text-sm text-gold" role="status">
+            Table {selectedNumber} is not on this floor plan. Please check with the entrance staff.
+        </p>}
+    </>;
 }

@@ -10,7 +10,7 @@ First sheet, one row per guest, with this header row:
 |-------|-------|------------|-----------|
 | 1     | Col   | Jane       | Doe       |
 
-`sample_guest_list.xlsx` is a fake 416-guest list in this layout, made by `make_sample.py`.
+`sample_guest_list.xlsx` is a fake guest list for tables 1–34 in this layout, made by `make_sample.py`.
 
 ## Update the guest list
 
@@ -21,7 +21,13 @@ python guest-list/build_guest_list.py path/to/seating_chart.xlsx
 
 This writes `public/attendees.enc.json` and prints the QR code link (`https://marinecoders.github.io/miu-birthday-ball/#k=...`). Then commit and push `public/attendees.enc.json` to publish.
 
-It also lists problems to check: rows with no name, table numbers that aren't numbers or aren't on the floor map (1-50), and names that appear more than once.
+It also lists problems to check: rows with no name, table numbers that aren't numbers or aren't on the floor map (1–34), and names that appear more than once.
+
+The map follows the venue reference plan with its original tables 1–7 removed.
+Original table 8 is now table 1, original table 9 is now table 2, and so on through
+original table 41, now table 34. Use the **new numbers 1–34** in your seating
+spreadsheet; existing guest assignments are not automatically renumbered.
+The map, validator, and sample generator share `src/lib/floor-plan.json`.
 
 ## Make the QR codes (one per door)
 
