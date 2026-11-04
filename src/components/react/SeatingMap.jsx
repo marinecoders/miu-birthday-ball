@@ -405,9 +405,9 @@ export default class DropDown extends React.Component {
     getHeader = () => {
         if (!this.state.landscape) {
             return (
-                <div className="max-w-3xl mx-auto mt-5 mb-12 text-center">
-                    <p className="text-lg text-slate-600 dark:text-slate-400">
-                        Your table is starred in the map below
+                <div className="max-w-3xl mx-auto mt-2 mb-4 px-5 text-center">
+                    <p className="text-sm text-slate-400">
+                        Turn your phone sideways for a bigger map
                     </p>
                 </div>
             );

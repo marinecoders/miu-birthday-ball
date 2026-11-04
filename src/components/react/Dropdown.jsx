@@ -3,15 +3,16 @@ import SelectSearch from "react-select-search";
 import 'react-select-search/style.css'
 import { loadAttendees, fullName, getKey } from "../../lib/attendees.js";
 import { url } from "../../lib/url.js";
+import { BUTTON_PRIMARY } from "../../lib/ui.js";
 
 export default class DropDown extends React.Component {
-
 
     constructor() {
         super();
         this.state = {
             selection: "",
-            options: []
+            options: [],
+            loading: true
         }
     }
 
@@ -20,52 +21,59 @@ export default class DropDown extends React.Component {
             window.location.href = url('error/')
             return
         }
-        loadAttendees().catch(() => {
-            window.location.href = url('error/')
-        })
         loadAttendees().then(({ attendees }) => {
             let options = []
+            const sorted = [...attendees].sort((a, b) =>
+                (a.last_name + a.first_name).localeCompare(b.last_name + b.first_name))
 
-            for (let option of attendees) {
+            for (let option of sorted) {
                 const name = fullName(option)
                 const value = name + " " + option.table
                 if (!options.find(element => element.value == value)) {
                     options.push({ name, value, table: option.table })
                 }
             }
-            this.setState({options})
+            this.setState({ options, loading: false })
+        }).catch(() => {
+            window.location.href = url('error/')
         });
     }
-    
+
     onChange = (selection) => {
         let guest = this.state.options.find(guest => guest.value == selection)
-        if (guest !== null) {
+        if (guest) {
             this.setState({selection, info: guest, table: guest.table});
         }
     }
 
     getButton = () => {
-        if (this.state.selection != "") {
-            return (
-                <div className="flex justify-center mt-10">
-                    <div className="inline-flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs font-semibold leading-loose text-white transition-all bg-red-800 border border-transparent rounded-md hover:ring-2 focus:outline-none focus:ring-2 ring-offset-white focus:ring-red-500 hover:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                        <a href={url("find_table/?") + new URLSearchParams({ name: this.state.info.name, table: this.state.table })}>Find Your Table</a>
-                    </div>
-                </div>
-            );
-        }
-        return null;
+        if (this.state.selection == "") return null;
+        const href = url("find_table/?") + new URLSearchParams({ name: this.state.info.name, table: this.state.table })
+        return (
+            <a href={href} className={BUTTON_PRIMARY + " mt-5 w-full"}>
+                Find my table
+                <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.64l-4.22-4.22a.75.75 0 1 1 1.06-1.06l5.5 5.5a.75.75 0 0 1 0 1.06l-5.5 5.5a.75.75 0 1 1-1.06-1.06l4.22-4.22H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" />
+                </svg>
+            </a>
+        );
     }
 
     render() {
         return(
             <div>
-                <div>
+                <div className="relative">
+                    <svg aria-hidden="true" className="search-icon h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.08 3.08a.75.75 0 1 1-1.06 1.06l-3.08-3.08A7 7 0 0 1 2 9Z" clipRule="evenodd" />
+                    </svg>
                     <SelectSearch
+                        id="guest-search"
                         className="select-search"
                         options={this.state.options}
                         search
-                        placeholder="Search by name"
+                        disabled={this.state.loading}
+                        placeholder={this.state.loading ? "Loading guest list…" : "Start typing your name"}
+                        emptyMessage="No guest by that name. Try your last name."
                         value={this.state.selection}
                         onChange={(value) => this.onChange(value)}
                     />

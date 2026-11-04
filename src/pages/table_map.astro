@@ -1,15 +1,42 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import Hero from '../components/marinecorps/Hero.astro'
-import DropDown from '../components/react/Dropdown.jsx'
-import RedButton from '../components/buttons/RedButton.astro'
-import SeatingMap from '../components/react/SeatingMap.jsx'
-import "../styles/global.css"
+import Layout from "../layouts/Layout.astro";
+import SeatingMap from "../components/react/SeatingMap.jsx";
+import { url } from "../lib/url.js";
+import { BUTTON_SECONDARY } from "../lib/ui.js";
 ---
-<Layout title="">
-  <div class="overflow-auto">
-    <div class="overflow-auto">
-      <SeatingMap client:only="react"/>
-    </div>
-    
+
+<Layout title="Floor map">
+  <header class="mx-auto max-w-3xl px-5 pt-8 text-center">
+    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">Floor map</p>
+    <h1 class="mt-2 font-serif text-3xl font-semibold text-white">
+      Table <span id="map-table" class="text-gold"></span>
+    </h1>
+    <p class="mt-1 text-sm text-slate-400">Your table is marked with a red star.</p>
+  </header>
+
+  <div class="mt-6 overflow-x-auto">
+    <SeatingMap client:only="react" />
+  </div>
+
+  <div class="mt-8 flex justify-center px-5">
+    <a
+      id="map-back"
+      class={BUTTON_SECONDARY}
+      href={url()}
+    >
+      Back
+    </a>
+  </div>
+
+  <script>
+    const table = new URLSearchParams(window.location.search).get("table") || "";
+    document.getElementById("map-table").textContent = table;
+    // Go back to the guest's result page if they came from it.
+    document.getElementById("map-back").addEventListener("click", (event) => {
+      if (document.referrer && new URL(document.referrer).origin === location.origin) {
+        event.preventDefault();
+        history.back();
+      }
+    });
+  </script>
 </Layout>
