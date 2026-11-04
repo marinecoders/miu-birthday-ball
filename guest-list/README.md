@@ -29,14 +29,23 @@ original table 41, now table 34. Use the **new numbers 1–34** in your seating
 spreadsheet; existing guest assignments are not automatically renumbered.
 The map, validator, and sample generator share `src/lib/floor-plan.json`.
 
-## Make the QR code
+## Make the QR codes (one per door)
 
 ```bash
 pip install segno
 python guest-list/make_qr_code.py
 ```
 
-This writes `guest-list/qr-code.svg` (best for printing) and `guest-list/qr-code.png`. Both are git-ignored because the code contains the key. The QR code only depends on the key, so it keeps working when you update the guest list. Print it at least 2 inches (5 cm) wide and test-scan the printout.
+Each ballroom door gets its own QR code. It carries the key plus that door's number (`#k=...&d=2`), so the floor map shows "You are here" at the door the guest walked in. The script writes:
+
+- `qr-code-door-N.svg` (best for printing) and `qr-code-door-N.png`, for each door
+- `qr-codes-print.html`: one labeled sign per door, one per page. Open it in a browser and print.
+
+All are git-ignored because the codes contain the key. They only depend on the key and door numbers, so they keep working when you update the guest list. Print each at least 2 inches (5 cm) wide, post it at **its own door**, and test-scan it there.
+
+### Doors
+
+The doors are listed in `src/lib/doors.json`: each door's name (printed on its sign) and where its pin goes on the floor map. The map is a grid 360 wide by 198 tall, with (0, 0) at the top-left. `label` says where the "You are here" tag sits: `above`, `below`, `left`, or `right` of the pin. After changing door names or adding a door, run `make_qr_code.py` again. Moving a pin only needs a commit and push.
 
 ## The key
 
