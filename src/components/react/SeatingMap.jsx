@@ -1,13 +1,19 @@
 import React from "react";
-import { Stage, Layer, Star, Circle, Group, Text, Label, Rect, Line } from 'react-konva';
-import 'react-select-search/style.css'
+import { Stage, Layer, Circle, Group, Text, Rect, Line } from 'react-konva';
+import HandDrawnCircle from "./HandDrawnCircle.jsx";
 
+// The map is drawn on a 360-unit-wide grid scaled to BASE_SIZE pixels
+// (height is 55% of width). Keep it at least MIN_WIDTH so table numbers stay
+// readable on phones (guests swipe sideways), and at most MAX_WIDTH on desktop.
+const MIN_WIDTH = 720;
+const MAX_WIDTH = 960;
 
 function getWidth() {
-    if (window.innerHeight >= (window.innerWidth * .55 - 68)) {
-        return window.innerWidth;
+    let width = window.innerWidth;
+    if (window.innerHeight < width * .55 - 68) {
+        width = window.innerHeight / .55;
     }
-    return (window.innerHeight / .55)
+    return Math.round(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, width)));
 }
 
 var BASE_SIZE = getWidth()
@@ -367,65 +373,56 @@ function generateShapes() {
     ];
   }
 
-function isLandscape() {return window.matchMedia('(orientation:landscape)').matches}
-
 const INITIAL_STATE = generateShapes();
 
-export default class DropDown extends React.Component {
+// Floor map with the guest's table circled. Pass `table`, or it reads ?table=.
+export default class SeatingMap extends React.Component {
 
-
-    constructor() {
-        super();
-        let queryString = window.location.search;
-        let urlParams = new URLSearchParams(queryString);
-        let number = urlParams.get('table')
-        console.log(isLandscape())
+    constructor(props) {
+        super(props);
+        let urlParams = new URLSearchParams(window.location.search);
+        this.scroller = React.createRef();
         this.state = ({
             tables: INITIAL_STATE,
-            landscape: isLandscape(),
-            table: number
+            table: String(props.table ?? urlParams.get('table') ?? ""),
+            wider: false
         })
-
-        window.addEventListener("resize",  this.onWindowResize);
     }
 
+    componentDidMount() {
+        window.addEventListener("resize", this.onWindowResize);
+        this.centerOnTable();
+    }
 
-    onWindowResize = () => {              
-        clearTimeout(window.resizeLag)
-        window.resizeLag = setTimeout(() => {
-          delete window.resizeLag
-        BASE_SIZE = getWidth()
-        this.setState({
-            landscape: isLandscape(),
-            tables: generateShapes()
-        })
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.onWindowResize);
+    }
+
+    // On screens narrower than the map, scroll so the guest's table is in view.
+    centerOnTable = () => {
+        const box = this.scroller.current;
+        if (!box) return;
+        const wider = box.scrollWidth > box.clientWidth + 1;
+        if (wider !== this.state.wider) this.setState({ wider });
+        const mine = this.state.tables.find(t => String(t.number) === this.state.table);
+        if (wider && mine) box.scrollLeft = mine.x - box.clientWidth / 2;
+    }
+
+    onWindowResize = () => {
+        clearTimeout(this.resizeLag)
+        this.resizeLag = setTimeout(() => {
+            BASE_SIZE = getWidth()
+            this.setState({ tables: generateShapes() }, this.centerOnTable)
         }, 200)
     }
 
-    getHeader = () => {
-        if (!this.state.landscape) {
-            return (
-                <div className="max-w-3xl mx-auto mt-2 mb-4 px-5 text-center">
-                    <p className="text-sm text-slate-400">
-                        Turn your phone sideways for a bigger map
-                    </p>
-                </div>
-            );
-        }
-        return null;
-    }
-
-
     render() {
        let tables = this.state.tables
+       const mine = tables.find(t => String(t.number) === this.state.table)
         return (
             <React.Fragment>
-                {
-                   this.getHeader()
-                }
-                
-                <div className="flex justify-center">
-                <Stage style={{pointerEvents: "none", backgroundColor: "#fafaf9", overflow: "auto"}} width={BASE_SIZE} height={BASE_SIZE * .55}>
+                <div ref={this.scroller} className="overflow-x-auto overscroll-x-contain rounded-2xl border border-white/10 shadow-2xl shadow-black/40" style={{ maxWidth: BASE_SIZE + 2, margin: "0 auto" }}>
+                <Stage style={{pointerEvents: "none", backgroundColor: "#fafaf9", width: BASE_SIZE}} width={BASE_SIZE} height={BASE_SIZE * .55}>
                     <Layer style={{ overflow: "auto"}}>
                         <Rect
                             x={(4/360) * BASE_SIZE}
@@ -600,22 +597,8 @@ export default class DropDown extends React.Component {
                     </Layer>
                     <Layer style={{overflow: "auto"}}>
                         {tables.map((table) => {
-                        if (table.number == this.state.table) {
-                            return (
-                                <Star
-                                    key={table.id}
-                                    id={table.id}
-                                    x={table.x}
-                                    y={table.y}
-                                    numPoints={5}
-                                    innerRadius={(3/360) * BASE_SIZE}
-                                    outerRadius={(7/360) * BASE_SIZE}
-                                    opacity={(0.8/360) * BASE_SIZE}
-                                    rotation={table.rotation}
-                                    fill={'#991b1b'}
-                                />
-                            );
-                        }
+                        const isMine = table === mine
+                        const r = (5/360) * BASE_SIZE
                         return (
                             <Group
                                 key={table.id}
@@ -624,31 +607,42 @@ export default class DropDown extends React.Component {
                                 <Circle
                                     x={table.x}
                                     y={table.y}
-                                    key={table.id}
-                                    id={table.id}
-                                    radius={(5/360) * BASE_SIZE}
-                                    fill={'#e5e7eb'}
+                                    radius={r}
+                                    fill={isMine ? '#FFC72C' : '#e5e7eb'}
                                     stroke={'#292524'}
-                                    strokeWidth={(1/360) * BASE_SIZE}
+                                    strokeWidth={(isMine ? 1.5 : 1)/360 * BASE_SIZE}
                                     fillAfterStrokeEnabled={true}
                                 />
                                 <Text
-                                    x={table.x-(table.number < 10 ? (1.5/360) * BASE_SIZE : (3/360) * BASE_SIZE)}
-                                    y={table.y-(2/360) * BASE_SIZE}
-                                    fontStyle={"bold"} 
-                                    fontSize={(6/360) * BASE_SIZE} 
-                                    text={table.number} 
-                                    fill="#000000" 
-                                    wrap="char" 
-                                    verticalAlign="top"
-                                    align="left" 
+                                    x={table.x - r}
+                                    y={table.y - r}
+                                    width={r * 2}
+                                    height={r * 2}
+                                    fontStyle={"bold"}
+                                    fontSize={(5.5/360) * BASE_SIZE}
+                                    text={String(table.number)}
+                                    fill="#0B0F17"
+                                    align="center"
+                                    verticalAlign="middle"
                                 />
                             </Group>
                         );
                         })}
+                        {mine && (
+                            <HandDrawnCircle
+                                x={mine.x}
+                                y={mine.y}
+                                radius={(9/360) * BASE_SIZE}
+                                seed={mine.number}
+                                strokeWidth={Math.max(2.5, (1.6/360) * BASE_SIZE)}
+                            />
+                        )}
                     </Layer>
                 </Stage>
                 </div>
+                {this.state.wider && (
+                    <p className="mt-2 text-center text-xs text-slate-400">Swipe sideways to see the whole room</p>
+                )}
             </React.Fragment>
         );
     }
