@@ -26,7 +26,8 @@ HERE = Path(__file__).parent
 OUT = HERE.parent / "public" / "attendees.enc.json"
 KEY_FILE = HERE / ".key"
 SITE = "https://marinecoders.github.io/miu-birthday-ball"  # change if you add a custom domain
-MAP_TABLES = set(range(1, 51))  # tables drawn on the floor map
+FLOOR_PLAN = json.loads((HERE.parent / "src" / "lib" / "floor-plan.json").read_text(encoding="utf-8"))
+MAP_TABLES = {table["number"] for table in FLOOR_PLAN["tables"]}
 COLUMNS = {"table": "table", "title": "title", "first name": "first_name", "last name": "last_name"}
 
 

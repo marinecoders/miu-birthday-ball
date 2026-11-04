@@ -1,11 +1,12 @@
 """Generate a fake guest list to build and test the site with.
 
 Writes sample_guest_list.xlsx next to this script, in the same flat layout
-that to_json.py reads: one row per guest with Table, Title, First Name, Last Name.
+that build_guest_list.py reads: one row per guest with Table, Title, First Name, Last Name.
 
     python make_sample.py
 """
 
+import json
 import random
 from pathlib import Path
 
@@ -14,7 +15,8 @@ from openpyxl.styles import Font
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 HERE = Path(__file__).parent
-TABLES = range(1, 51)  # the floor map has tables 1-50
+FLOOR_PLAN = json.loads((HERE.parent / "src" / "lib" / "floor-plan.json").read_text(encoding="utf-8"))
+TABLES = sorted(table["number"] for table in FLOOR_PLAN["tables"])
 
 FIRST = [
     "James", "Maria", "Robert", "Ashley", "Michael", "Jessica", "David", "Sarah",
@@ -63,8 +65,8 @@ def main() -> None:
     # A few cases worth testing: same name at two tables, no title, long name.
     rows.append((3, "Sgt", "John", "Smith"))
     rows.append((27, "Mr.", "John", "Smith"))
-    rows.append((41, "", "Taylor", "Morgan"))
-    rows.append((50, "Mrs.", "Alexandra-Catherine", "Montgomery-Fitzgerald"))
+    rows.append((33, "", "Taylor", "Morgan"))
+    rows.append((34, "Mrs.", "Alexandra-Catherine", "Montgomery-Fitzgerald"))
     rows.sort(key=lambda r: (r[0], r[3], r[2]))
 
     wb = Workbook()
