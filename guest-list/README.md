@@ -10,7 +10,7 @@ First sheet, one row per guest, with this header row:
 |-------|-------|------------|-----------|
 | 1     | Col   | Jane       | Doe       |
 
-`sample_guest_list.xlsx` is a fake guest list for tables 1–34 in this layout, made by `make_sample.py`.
+`make_sample.py` generates a fake guest list for tables 1–21 in this layout, saved as `sample_guest_list.xlsx`. Regenerate it after a layout change with `python guest-list/make_sample.py`.
 
 ## Update the guest list
 
@@ -21,12 +21,17 @@ python guest-list/build_guest_list.py path/to/seating_chart.xlsx
 
 This writes `public/attendees.enc.json` and prints the QR code link (`https://marinecoders.github.io/miu-birthday-ball/#k=...`). Then commit and push `public/attendees.enc.json` to publish.
 
-It also lists problems to check: rows with no name, table numbers that aren't numbers or aren't on the floor map (1–34), and names that appear more than once.
+It also lists problems to check: rows with no name, table numbers that aren't numbers or aren't on the floor map (1–21), and names that appear more than once.
 
-The map follows the venue reference plan with its original tables 1–7 removed.
-Original table 8 is now table 1, original table 9 is now table 2, and so on through
-original table 41, now table 34. Use the **new numbers 1–34** in your seating
-spreadsheet; existing guest assignments are not automatically renumbered.
+The map has **21 guest tables in three rows**, numbered left to right and front
+to back, with three tables to the left of the ceremony aisle and four to the right
+in each row. The front row wraps around the ceremony area; the full aisle from
+that area to the back wall stays free of tables. The rear row is pulled forward
+to leave extra space around the separate, unnumbered circular **POW/MIA table just right of
+Entry 2**. There are no VIP designations. Use **table numbers 1–21**
+in your seating spreadsheet; existing guest assignments are not automatically
+renumbered. Reassign any guests at removed tables 22–34 and rebuild the encrypted
+guest list before publishing the new layout.
 The map, validator, and sample generator share `src/lib/floor-plan.json`.
 
 ## Make the QR codes (one per door)
@@ -36,7 +41,7 @@ pip install segno
 python guest-list/make_qr_code.py
 ```
 
-Each ballroom door gets its own QR code. It carries the key plus that door's number (`#k=...&d=2`), so the floor map shows "You are here" at the door the guest walked in. The script writes:
+Each ballroom door gets its own QR code. It carries the key plus that door's number (`#k=...&d=2`), so the floor map shows "You are here" at the door the guest walked in. Once they select their table, a blue path leads through that entry to the table, using right-angle turns and leaving clearance around tables and fixed obstacles. Entries 1–4 run right to left. Existing printed QR codes work without regeneration. The script writes:
 
 - `qr-code-door-N.svg` (best for printing) and `qr-code-door-N.png`, for each door
 - `qr-codes-print.html`: one labeled sign per door, one per page. Open it in a browser and print.
@@ -45,7 +50,9 @@ All are git-ignored because the codes contain the key. They only depend on the k
 
 ### Doors
 
-The doors are listed in `src/lib/doors.json`: each door's name (printed on its sign) and where its pin goes on the floor map. The map is a grid 360 wide by 198 tall, with (0, 0) at the top-left. `label` says where the "You are here" tag sits: `above`, `below`, `left`, or `right` of the pin. After changing door names or adding a door, run `make_qr_code.py` again. Moving a pin only needs a commit and push.
+The doors are listed in `src/lib/doors.json`: each door's name (printed on its sign) and where its pin goes on the floor map. The map is a grid 360 wide by 304 tall, with (0, 0) at the top-left. Pins must sit directly below their doorway, at integer coordinates. `label` says where the "You are here" tag sits: `above`, `below`, `left`, or `right` of the pin; active routes place the tag below to keep the doorway visible. After changing door names or adding a door, run `make_qr_code.py` again. Moving a pin only needs a commit and push.
+
+For a direct map link, use `table_map/?table=1&d=4` (under the site's base URL). Both `?d=N` and the printed QR fragment `#k=...&d=N` work; the entry is remembered between pages and replaced by a new scan. Without a known entry, the map asks the guest to scan their entry's QR code instead of guessing a route. The routing bounds and fixed obstacles live alongside the tables in `src/lib/floor-plan.json`; update them when the room layout changes. Run `npm test` to check all 84 entry/table routes for right-angle turns and obstacle clearance.
 
 ## The key
 

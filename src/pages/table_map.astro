@@ -33,7 +33,11 @@ import { BUTTON_SECONDARY } from "../lib/ui.js";
     const table = new URLSearchParams(window.location.search).get("table") || "";
     document.getElementById("map-table").textContent = table;
     const back = document.getElementById("map-back");
-    back.href = withKey(back.getAttribute("href"));
+    const backPath = back.getAttribute("href");
+    const updateBack = () => { back.href = withKey(backPath); };
+    updateBack();
+    window.addEventListener("hashchange", updateBack);
+    window.addEventListener("popstate", updateBack);
     // Go back to the guest's result page if they came from it.
     back.addEventListener("click", (event) => {
       if (document.referrer && new URL(document.referrer).origin === location.origin) {

@@ -6,10 +6,11 @@
 // key isn't sent to the web host. It's remembered on the phone so the guest
 // can move between pages and come back later.
 import { url } from "./url.js";
+import { getDoor } from "./entry.js";
+export { getDoor } from "./entry.js";
 
 const ATTENDEES_URL = url("attendees.enc.json");
 const STORAGE_KEY = "guestListKey";
-const DOOR_STORAGE_KEY = "guestDoor";
 
 let cache;
 
@@ -39,25 +40,18 @@ export function getKey() {
   return storage("get");
 }
 
-// The door the guest scanned in at (each door's QR code adds &d=N), else the
-// one remembered from an earlier scan. Null if unknown.
-export function getDoor() {
-  const fromLink = new URLSearchParams(window.location.hash.slice(1)).get("d");
-  if (fromLink) {
-    storage("set", fromLink, DOOR_STORAGE_KEY);
-    return fromLink;
-  }
-  return storage("get", null, DOOR_STORAGE_KEY);
-}
-
 // Adds the key (and door) to a link between pages, so the next page works
 // even if the phone didn't save them (some QR scanner apps open links in a
 // built-in browser that doesn't keep them).
 export function withKey(href) {
   const key = getKey();
-  if (!key) return href;
   const door = getDoor();
-  return `${href}#k=${key}${door ? `&d=${encodeURIComponent(door)}` : ""}`;
+  if (!key && !door) return href;
+  const [path, fragment = ""] = href.split("#");
+  const params = new URLSearchParams(fragment);
+  if (key) params.set("k", key);
+  if (door) params.set("d", door);
+  return `${path}#${params}`;
 }
 
 async function decrypt(file, key) {
