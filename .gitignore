@@ -25,3 +25,15 @@ pnpm-debug.log*
 
 # python venvs
 venv
+
+# guest list: only the encrypted file and the fake sample go in git
+guest-list/.key
+guest-list/*.xlsx
+guest-list/*.csv
+!guest-list/sample_guest_list.xlsx
+public/attendees.json
+
+~$*
+
+# local preview config
+.claude/
