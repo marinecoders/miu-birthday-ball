@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Stage, Layer, Circle, Group, Text, Rect, Line } from "react-konva";
+import { Stage, Layer, Circle, Group, Text, Rect, Line, Path } from "react-konva";
 import HandDrawnCircle from "./HandDrawnCircle.jsx";
 import YouAreHere from "./YouAreHere.jsx";
 import RouteArrow from "./RouteArrow.jsx";
@@ -103,8 +103,14 @@ export default function SeatingMap({ table, door }) {
                 style={{ pointerEvents: "none", backgroundColor: "#fafaf9", width }}>
                 <Layer scaleX={scale} scaleY={scale} listening={false}>
                     {/* Ballroom and the foyer/bar area, oriented as in the reference. */}
-                    <Line points={[12, 220, 12, 292, 244, 292, 244, 248, 280, 248, 324, 284, 350, 262, 343, 220]}
-                        fill="#f1f5f9" stroke="#475569" strokeWidth={1.2} closed />
+                    <Group id="foyer">
+                        <Line points={[54, 220, 54, 254, 46.5, 254, 46.5, 292, 244, 292, 244, 248, 280, 248, 324, 284, 350, 262, 343, 220]}
+                            fill="#f1f5f9" stroke="#475569" strokeWidth={1.2} closed />
+                        {/* The west wall steps out below the side double doors. */}
+                        <Line points={[54, 232, 54, 250]} stroke="#fafaf9" strokeWidth={3} />
+                        <Path data="M54 232 H45 A9 9 0 0 0 54 241 M54 250 H45 A9 9 0 0 1 54 241"
+                            stroke="#94a3b8" strokeWidth={0.7} />
+                    </Group>
                     <Rect {...floorPlan.ballroom}
                         fill="#fafaf9" stroke="#334155" strokeWidth={1.5} />
                     <Group id="ceremony-aisle">
@@ -143,8 +149,6 @@ export default function SeatingMap({ table, door }) {
                             text={"POW\nMIA"} fontSize={3.4} fill="#334155" fontStyle="bold" lineHeight={1.2} />
                     </Group>
 
-                    <Rect x={13} y={250} width={39} height={41} fill="#e2e8f0"
-                        stroke="#94a3b8" strokeWidth={0.7} />
                     <MapLabel x={74} y={251} width={140} text="FOYER" fontSize={5} fill="#64748b" letterSpacing={1.2} />
                     {[77, 139, 201].map(x => <Group key={`bar-${x}`}>
                         <Rect x={x} y={276} width={34} height={9} fill="#cbd5e1" cornerRadius={1} />
