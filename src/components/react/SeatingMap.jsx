@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Stage, Layer, Circle, Group, Text, Rect, Line, Arrow } from "react-konva";
+import { Stage, Layer, Circle, Group, Text, Rect, Line } from "react-konva";
 import HandDrawnCircle from "./HandDrawnCircle.jsx";
 import YouAreHere from "./YouAreHere.jsx";
 import floorPlan from "../../lib/floor-plan.json";
@@ -20,11 +20,13 @@ function MapLabel({ x, y, width, height = 8, text, fontSize = 4, fill = "#64748b
 }
 
 // A gap in the wall with a pair of open door leaves, in floor-plan units.
-function Doors({ x, y, direction = 1 }) {
+function Doors({ x, y, direction = 1, label }) {
     return <Group listening={false}>
         <Line points={[x - 9, y, x + 9, y]} stroke="#fafaf9" strokeWidth={3} />
         <Line points={[x - 9, y, x - 9, y + 8 * direction, x, y, x + 9, y + 8 * direction, x + 9, y]}
             stroke="#94a3b8" strokeWidth={0.7} lineJoin="round" />
+        <MapLabel x={x - 18} y={y - 12} width={36} height={8}
+            text={label} fontSize={3.8} fontStyle="bold" fill="#334155" />
     </Group>;
 }
 
@@ -65,7 +67,7 @@ export default function SeatingMap({ table, door }) {
         <div ref={scroller}
             className="overflow-x-auto overscroll-x-contain rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
             style={{ maxWidth: width + 2, margin: "0 auto" }}
-            role="img" aria-label={`Ballroom floor plan, tables 1–34 in four rows. ${mine
+            role="img" aria-label={`Ballroom floor plan, tables 1–34 in four rows. Entries 1–4 run right to left along the bottom wall. ${mine
                 ? `Table ${mine.number} is circled in red in seating row ${mine.row}, counting from the podium.`
                 : "The podium is at the top and the main entrance is at the bottom."}`}>
             <Stage width={width} height={floorPlan.height * scale}
@@ -76,7 +78,8 @@ export default function SeatingMap({ table, door }) {
                         fill="#f1f5f9" stroke="#475569" strokeWidth={1.2} closed />
                     <Rect x={12} y={18} width={336} height={202}
                         fill="#fafaf9" stroke="#334155" strokeWidth={1.5} />
-                    {[78, 148, 224, 302].map(x => <Doors key={`back-${x}`} x={x} y={220} />)}
+                    {[302, 224, 148, 78].map((x, index) =>
+                        <Doors key={`back-${x}`} x={x} y={220} label={`Entry ${index + 1}`} />)}
 
                     {/* The removed front row stays open; the ceremony area remains. */}
                     {[47, 220].map(x => <Group key={x}>
@@ -94,9 +97,6 @@ export default function SeatingMap({ table, door }) {
                         <Rect x={198} y={32} width={12} height={9} fill="#334155" cornerRadius={1} />
                         <Line points={[200, 34, 208, 34]} stroke="#cbd5e1" strokeWidth={0.6} />
                     </Group>
-                    <Arrow points={[148, 237, 148, 226, 163, 226, 163, 105]}
-                        stroke="#94a3b8" fill="#94a3b8" strokeWidth={1} dash={[3, 3]}
-                        pointerLength={4} pointerWidth={3} lineJoin="round" />
 
                     {/* VIP positions follow the highlighted tables in the reference. */}
                     <Circle x={43} y={53} radius={3} fill="#fff0bf" stroke="#b8954a" strokeWidth={0.6} />
