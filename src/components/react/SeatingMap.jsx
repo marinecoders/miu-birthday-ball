@@ -7,8 +7,8 @@ import floorPlan from "../../lib/floor-plan.json";
 import doorSettings from "../../lib/doors.json";
 import { getDoor } from "../../lib/entry.js";
 import { findTableRoute } from "../../lib/table-route.js";
+import { getMapView } from "../../lib/map-view.js";
 
-const MIN_WIDTH = 720;
 const MAX_WIDTH = 960;
 const { ceremony, podium, narrator, pow } = Object.fromEntries(floorPlan.obstacles.map(o => [o.id, o]));
 const projectors = floorPlan.obstacles.filter(o => o.id.startsWith("projector-"));
@@ -16,8 +16,12 @@ const aisle = floorPlan.ceremonyAisle;
 const tableRange = `${floorPlan.tables[0].number}–${floorPlan.tables.at(-1).number}`;
 const rowCount = new Set(floorPlan.tables.map(table => table.row)).size;
 
-function getWidth() {
-    return Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, window.innerWidth - 24));
+function getViewport(width = window.innerWidth - 24) {
+    return {
+        width: Math.min(MAX_WIDTH, Math.max(1, width)),
+        compact: window.innerWidth < 768 || window.innerHeight < 500,
+        maxHeight: Math.max(240, Math.min(560, window.innerHeight * 0.65)),
+    };
 }
 
 function MapLabel({ x, y, width, height = 8, text, fontSize = 4, fill = "#64748b", ...props }) {
@@ -37,15 +41,14 @@ function Doors({ x, y, direction = 1, label }) {
     </Group>;
 }
 
-// Three rows flank the clear ceremony aisle, numbered left to right from the podium.
+// Staggered rows flank the ceremony aisle; table 22 sits behind the left block.
 // Coordinates are shared with routing and the guest-list tools.
 export default function SeatingMap({ table, door }) {
-    const [width, setWidth] = useState(getWidth);
-    const [wider, setWider] = useState(false);
-    const scroller = useRef(null);
+    const [viewport, setViewport] = useState(getViewport);
+    const [viewChoice, setViewChoice] = useState(null);
+    const container = useRef(null);
     const selectedNumber = String(table ?? new URLSearchParams(window.location.search).get("table") ?? "");
     const mine = floorPlan.tables.find(t => String(t.number) === selectedNumber);
-    const scale = width / floorPlan.width;
     // "You are here": the door on the guest's QR code (src/lib/doors.json),
     // or the main entrance when the link has no door.
     const [scannedDoor, setScannedDoor] = useState(() => getDoor());
@@ -53,6 +56,17 @@ export default function SeatingMap({ table, door }) {
     const here = doorSettings.doors[doorNumber] ?? { ...floorPlan.entrance, label: "above" };
     const route = useMemo(() => findTableRoute(floorPlan, doorSettings.doors[doorNumber], selectedNumber),
         [doorNumber, selectedNumber]);
+    const viewContext = `${selectedNumber}:${doorNumber}`;
+    const mode = viewChoice?.context === viewContext ? viewChoice.mode
+        : viewport.compact && route ? "route" : "room";
+    const { width } = viewport;
+    const height = Math.round(viewport.compact
+        ? mode === "room" ? width * floorPlan.height / floorPlan.width
+            : Math.min(viewport.maxHeight, mode === "table" ? width : Math.max(280, width * 1.1))
+        : width * floorPlan.height / floorPlan.width);
+    const view = getMapView(floorPlan, { width, height, mode, route, table: mine, origin: here });
+    const { scale } = view;
+    const chooseView = mode => setViewChoice({ context: viewContext, mode });
     const routeDescription = mine ? route
         ? `Follow the blue path from Entry ${doorNumber} to Table ${mine.number}.`
         : doorSettings.doors[doorNumber]
@@ -71,37 +85,43 @@ export default function SeatingMap({ table, door }) {
     }, []);
 
     useEffect(() => {
-        const resize = () => setWidth(getWidth());
-        window.addEventListener("resize", resize);
-        return () => window.removeEventListener("resize", resize);
-    }, []);
-
-    useEffect(() => {
-        const box = scroller.current;
-        const center = () => {
-            const needsScroll = box.scrollWidth > box.clientWidth + 1;
-            setWider(needsScroll);
-            if (needsScroll && mine) box.scrollLeft = mine.x * scale - box.clientWidth / 2;
+        const box = container.current;
+        const resize = () => {
+            const next = getViewport(box.clientWidth);
+            setViewport(previous => previous.width === next.width && previous.compact === next.compact
+                && previous.maxHeight === next.maxHeight ? previous : next);
         };
-        center();
-        const observer = new ResizeObserver(center);
+        resize();
+        const observer = new ResizeObserver(resize);
         observer.observe(box);
-        return () => observer.disconnect();
-    }, [width, selectedNumber]);
+        window.addEventListener("resize", resize);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("resize", resize);
+        };
+    }, []);
 
     return <>
         {routeDescription && <p className="mb-3 text-center text-sm text-slate-300" role="status">
             {routeDescription}
         </p>}
-        <div ref={scroller}
-            className="overflow-x-auto overscroll-x-contain rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
-            style={{ maxWidth: width + 2, margin: "0 auto" }}
-            role="img" aria-label={`Ballroom floor plan, tables ${tableRange} in ${rowCount} rows on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Entries 1–4 run right to left along the bottom wall. ${mine
+        {mine && <div className="mb-3 flex flex-wrap justify-center gap-2" role="group" aria-label="Map view">
+            {[...(route ? [["route", "Fit route"]] : []), ["room", "Whole room"], ["table", "My table"]].map(([value, label]) =>
+                <button key={value} type="button" aria-pressed={mode === value} onClick={() => chooseView(value)}
+                    className={`min-h-11 rounded-full border px-3 py-2 text-sm font-medium transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-gold ${mode === value
+                        ? "border-gold/70 bg-gold/15 text-gold" : "border-white/20 bg-ink-800 text-slate-300 hover:border-white/40"}`}>
+                    {label}
+                </button>)}
+        </div>}
+        <div ref={container}
+            className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
+            style={{ width: "100%", maxWidth: MAX_WIDTH + 2, margin: "0 auto" }}
+            role="img" aria-label={`Ballroom floor plan, tables ${tableRange} in ${rowCount} seating rows, with staggered tables on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Entries 1–4 run right to left along the bottom wall. ${mine
                 ? `Table ${mine.number} is circled in red in seating row ${mine.row}, counting from the podium.`
                 : "The podium is at the top and the main entrance is at the bottom."} ${routeDescription}`}>
-            <Stage width={width} height={floorPlan.height * scale}
+            <Stage width={width} height={height}
                 style={{ pointerEvents: "none", backgroundColor: "#fafaf9", width }}>
-                <Layer scaleX={scale} scaleY={scale} listening={false}>
+                <Layer x={view.x} y={view.y} scaleX={scale} scaleY={scale} listening={false}>
                     {/* Ballroom and the foyer/bar area, oriented as in the reference. */}
                     <Group id="foyer">
                         <Line points={[54, 220, 54, 254, 46.5, 254, 46.5, 292, 244, 292, 244, 248, 280, 248, 324, 284, 350, 262, 343, 220]}
@@ -160,25 +180,26 @@ export default function SeatingMap({ table, door }) {
                     {floorPlan.tables.map(t => {
                         const isMine = t === mine;
                         const radius = floorPlan.tableRadius;
+                        const labelWidth = Math.max(radius * 2, 14 / scale);
+                        const labelHeight = Math.max(radius * 2, 12 / scale);
                         return <Group key={t.number} id={`table-${t.number}`}>
                             <Circle x={t.x} y={t.y} radius={radius}
                                 fill={isMine ? "#FFC72C" : "#e5e7eb"}
                                 stroke="#334155" strokeWidth={isMine ? 1.1 : 0.7} />
-                            <MapLabel x={t.x - radius} y={t.y - radius}
-                                width={radius * 2} height={radius * 2}
-                                text={String(t.number)} fontSize={6.2} fontStyle="bold" fill="#0B0F17" />
+                            <MapLabel x={t.x - labelWidth / 2} y={t.y - labelHeight / 2}
+                                width={labelWidth} height={labelHeight} wrap="none"
+                                text={String(t.number)} fontSize={Math.max(6.2, 10 / scale)} fontStyle="bold" fill="#0B0F17" />
                         </Group>;
                     })}
                     {mine && <HandDrawnCircle x={mine.x} y={mine.y} radius={11}
                         strokeWidth={1.8} />}
                 </Layer>
-                <Layer listening={false}>
+                <Layer x={view.x} y={view.y} listening={false}>
                     <YouAreHere x={here.x * scale} y={here.y * scale} unit={scale}
                         label={route ? "below" : here.label} />
                 </Layer>
             </Stage>
         </div>
-        {wider && <p className="mt-2 text-center text-xs text-slate-400">Swipe sideways to see the whole room</p>}
         {selectedNumber && !mine && <p className="mt-2 text-center text-sm text-gold" role="status">
             Table {selectedNumber} is not on this floor plan. Please check with the entrance staff.
         </p>}

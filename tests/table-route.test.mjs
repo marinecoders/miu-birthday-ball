@@ -14,7 +14,7 @@ function intersects(a, b, rect) {
         && Math.max(a.y, b.y) >= rect.y && Math.min(a.y, b.y) <= rect.y + rect.height;
 }
 
-test('all 84 entry/table routes use clear right-angle aisles and the correct doorway', () => {
+test('all 88 entry/table routes use clear right-angle aisles and the correct doorway', () => {
     const obstacles = [
         ...plan.tables.map(t => ({ x: t.x - tablePadding, y: t.y - tablePadding,
             width: tablePadding * 2, height: tablePadding * 2 })),
@@ -55,7 +55,7 @@ test('all 84 entry/table routes use clear right-angle aisles and the correct doo
 
 test('invalid entries and tables have no route', () => {
     assert.equal(findTableRoute(plan, null, 1), null);
-    assert.equal(findTableRoute(plan, doors[1], 22), null);
+    assert.equal(findTableRoute(plan, doors[1], 23), null);
     assert.equal(findTableRoute(plan, doors[1], 34), null);
     assert.equal(findTableRoute(plan, doors[1], 'pow'), null);
     assert.equal(findTableRoute(plan, doors[1], ''), null);
@@ -75,6 +75,6 @@ test('blocked entrances and unreachable destinations fail without crossing obsta
 test('changing entry or table recomputes the route', () => {
     const first = findTableRoute(plan, doors[1], 1);
     assert.notDeepEqual(first, findTableRoute(plan, doors[4], 1));
-    assert.notDeepEqual(first, findTableRoute(plan, doors[1], 21));
+    assert.notDeepEqual(first, findTableRoute(plan, doors[1], 22));
     assert.deepEqual(first, findTableRoute(plan, doors[1], '1'), 'stable across repeated renders');
 });

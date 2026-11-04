@@ -1,24 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { ROUTE_CLEARANCE } from '../src/lib/table-route.js';
 
 const plan = JSON.parse(readFileSync(new URL('../src/lib/floor-plan.json', import.meta.url), 'utf8'));
 const { doors } = JSON.parse(readFileSync(new URL('../src/lib/doors.json', import.meta.url), 'utf8'));
 
-test('the floor plan contains exactly tables 1–21, numbered front to back and left to right', () => {
-    assert.deepEqual(plan.tables.map(t => t.number), Array.from({ length: 21 }, (_, i) => i + 1));
-    const ordered = [...plan.tables].sort((a, b) => a.y - b.y || a.x - b.x);
+test('the floor plan contains exactly tables 1–22, numbered left to right within seating rows', () => {
+    assert.deepEqual(plan.tables.map(t => t.number), Array.from({ length: 22 }, (_, i) => i + 1));
+    const ordered = [...plan.tables].sort((a, b) => a.row - b.row || a.x - b.x);
     assert.deepEqual(plan.tables, ordered);
 });
 
-test('three rows of seven align in two seating blocks without VIP designations', () => {
+test('three staggered rows of seven align in two seating blocks without VIP designations', () => {
     const rows = [1, 2, 3].map(row => plan.tables.filter(t => t.row === row));
     assert.deepEqual(rows.map(row => row.length), [7, 7, 7]);
     assert.ok(plan.tables.every(t => !Object.hasOwn(t, 'vip')));
     const columns = rows[0].map(t => t.x);
     for (const tables of rows) {
         assert.deepEqual(tables.map(t => t.x), columns, 'columns line up across rows');
-        assert.equal(new Set(tables.map(t => t.y)).size, 1, 'each row is level');
+        assert.equal(new Set(tables.map(t => t.y)).size, 2, 'each row has two staggered depths');
+        const upper = [tables[0], tables[2], tables[4], tables[6]];
+        const lower = [tables[1], tables[3], tables[5]];
+        assert.equal(new Set(upper.map(t => t.y)).size, 1, 'raised columns align');
+        assert.equal(new Set(lower.map(t => t.y)).size, 1, 'lower columns align');
+        assert.ok(lower[0].y > upper[0].y, 'alternating columns stagger away from the podium');
         const left = tables.filter(t => t.x < plan.ceremonyAisle.x);
         const right = tables.filter(t => t.x > plan.ceremonyAisle.x + plan.ceremonyAisle.width);
         assert.deepEqual([left.length, right.length], [3, 4], 'seating flanks the ceremony aisle');
@@ -33,14 +39,23 @@ test('three rows of seven align in two seating blocks without VIP designations',
     assert.ok(rowPitch - plan.tableRadius * 2 >= 20, 'wide gaps between rows');
 });
 
-test('the first row gently wraps the ceremony area without advancing beyond the original front row', () => {
+test('the first row wraps the ceremony area to match the staggered reference', () => {
     const frontRow = plan.tables.filter(t => t.row === 1);
-    // The previous first row ranged from y86 to y95. Stay behind its rear edge.
-    assert.ok(frontRow.every(t => t.y >= 95));
     const ceremony = plan.obstacles.find(o => o.id === 'ceremony');
     assert.ok(frontRow.every(t => t.y - plan.tableRadius < ceremony.y + ceremony.height), 'first row wraps its lower corners');
     assert.ok(frontRow.every(t => t.x + plan.tableRadius + 3 < ceremony.x
         || t.x - plan.tableRadius - 3 > ceremony.x + ceremony.width), 'tables stay beside the ceremony area');
+});
+
+test('table 22 sits below table 17 in the left block and stays clear of Entry 3', () => {
+    const extra = plan.tables.find(t => t.number === 22);
+    const above = plan.tables.find(t => t.number === 17);
+    assert.equal(extra.row, 4);
+    assert.equal(plan.tables.filter(t => t.row === 4).length, 1);
+    assert.equal(extra.x, above.x);
+    assert.ok(extra.y - above.y >= plan.tableRadius * 2 + 16);
+    assert.ok(extra.x + plan.tableRadius + ROUTE_CLEARANCE < plan.ceremonyAisle.x);
+    assert.ok(extra.y + plan.tableRadius + ROUTE_CLEARANCE < plan.ballroom.y + plan.ballroom.height);
 });
 
 test('the entire ceremony aisle remains free of furniture down to the back wall', () => {
@@ -68,7 +83,7 @@ test('the separate circular POW/MIA table sits right of Entry 2 with extra space
     assert.equal(pow.width, pow.height, 'routing envelope fits the circular table');
     assert.ok(pow.x > doors[2].x + 9 + 5, 'clear of Entry 2 doorway');
     assert.ok(pow.x + pow.width < doors[1].x - 9 - 5, 'before Entry 1 doorway');
-    assert.ok(pow.y + pow.height <= plan.ballroom.y + plan.ballroom.height - 5, 'inside the ballroom');
+    assert.ok(pow.y + pow.height <= plan.ballroom.y + plan.ballroom.height - ROUTE_CLEARANCE, 'inside the ballroom');
     const backRow = plan.tables.filter(t => t.row === 3);
     const guestRearEdge = Math.max(...backRow.map(t => t.y + plan.tableRadius));
     assert.ok(pow.y - guestRearEdge >= 16, 'extra room between guest tables and POW table');
