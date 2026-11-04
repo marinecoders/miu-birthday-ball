@@ -4,6 +4,7 @@ import TableNumber from "../components/react/TableNumber.jsx";
 import Schedule from "../components/marinecorps/Schedule.astro";
 
 import { Image } from "astro:assets";
+import cmcFlag from "../../assets/CMC Flag.png";
 import cmcSignature from "../../assets/CMC Signature.png";
 
 import { EVENT } from "../lib/event.js";
@@ -32,14 +33,12 @@ import { BUTTON_SECONDARY } from "../lib/ui.js";
     </div>
 
     <div class="mx-auto mt-10 max-w-md overflow-hidden rounded-2xl shadow-2xl shadow-black/50">
-      <img
-        src={url("usmc-flag.svg")}
-        alt="Flag of the United States Marine Corps"
-        class="block aspect-[5940/4680] h-auto w-full"
-        width="448"
-        height="353"
-        loading="lazy"
-        decoding="async"
+      <Image
+        src={cmcFlag}
+        alt="Flag of the Commandant of the Marine Corps"
+        class="h-auto w-full"
+        widths={[400, 800]}
+        sizes="(min-width: 480px) 448px, 100vw"
       />
     </div>
 
