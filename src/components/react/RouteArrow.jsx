@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import Konva from "konva";
-import { Arrow, Group, Line, Shape } from "react-konva";
+import { Group, Line, Shape } from "react-konva";
 
 const PULSE_LENGTH = 36; // Floor-plan units, independent of screen size.
 const SPEED = 52; // Floor-plan units per second, including around corners.
@@ -78,8 +78,8 @@ export default function RouteArrow({ route }) {
     return <Group id="table-route" listening={false}>
         <Line points={points} stroke="#ffffff" strokeWidth={3.4}
             lineJoin="miter" lineCap="round" />
-        <Arrow points={points} stroke="#2563eb" fill="#2563eb" strokeWidth={1.9}
-            pointerLength={3.6} pointerWidth={3.6} lineJoin="miter" lineCap="round" />
+        <Line points={points} stroke="#2563eb" strokeWidth={1.9}
+            lineJoin="miter" lineCap="round" />
         <Shape ref={pulse} visible={false} sceneFunc={drawPulse} perfectDrawEnabled={false} />
     </Group>;
 }
