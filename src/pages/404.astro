@@ -8,6 +8,7 @@ import Countdown from '../components/marinecorps/Countdown.astro'
 import Padding from '../components/utils/Padding.astro'
 import Products from '../components/marinecorps/Products.astro'
 
+import { url } from "../lib/url.js"
 import "../styles/global.css"
 ---
 
@@ -17,7 +18,7 @@ import "../styles/global.css"
       <Hero
         title="404"
         content="Page not found."
-        link="/"
+        link={url()}
         linkText='GO HOME'
         padding='pt-24'
       />

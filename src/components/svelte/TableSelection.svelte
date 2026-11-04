@@ -1,46 +1,11 @@
 <script>
-  import TableIcon from "../../../assets/table.svg";
+  import { url } from "../../lib/url.js";
   import { fade } from "svelte/transition";
+  import { loadAttendees } from "../../lib/attendees.js";
 
-  let queryString = window.location.search;
-  let urlParams = new URLSearchParams(queryString);
   let attendeePromise;
 
-  async function getAttendees() {
-    const response = await fetch(
-      "https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-bd167a67-9585-47aa-8ecf-973709cdf3c0/default/birthday-response?key=" +
-        urlParams.get("key"),
-      {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        rejectUnauthorized: false,
-      }
-    );
-
-    const data = await response.json();
-
-    const uniqueTableNumbers = [
-      ...new Set(data.map((attendee) => attendee.table)),
-    ];
-
-    const byTable = uniqueTableNumbers.reduce((acc, num) => {
-      acc[num] = data.filter((attendee) => attendee.table === num);
-      return acc;
-    }, {});
-
-    attendeePromise = {
-      attendees: data,
-      byTable: byTable,
-      uniqueTableNumbers: uniqueTableNumbers,
-    };
-
-    localStorage.setItem("attendees", JSON.stringify(attendeePromise));
-  }
-  getAttendees();
+  loadAttendees().then((data) => (attendeePromise = data));
 
   $: tableNumberSelected = "";
 </script>
@@ -75,7 +40,7 @@
         on:click={() => (tableNumberSelected = tableNum)}
       >
         <img
-          src={"../../../table.svg"}
+          src={url("table.svg")}
           class="m-auto"
           alt="Table Icon"
         />

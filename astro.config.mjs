@@ -12,6 +12,8 @@ export default defineConfig({
     }),
     svelte(),
   ],
-  site: 'https://birthday.usmc.dev',
-  base: '/',
+  // Hosted on GitHub Pages at https://marinecoders.github.io/miu-birthday-ball/
+  // With a custom domain (e.g. birthday.marines.dev), set site to it and base to '/'.
+  site: 'https://marinecoders.github.io',
+  base: '/miu-birthday-ball',
 })

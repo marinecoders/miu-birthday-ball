@@ -1,24 +1,32 @@
 import React from "react";
 import 'react-select-search/style.css'
+import { loadAttendees, fullName } from "../../lib/attendees.js";
+import { url } from "../../lib/url.js";
 
 
 let funName = "laura smith"
-let attendeesList = JSON.parse(localStorage.getItem('attendees'))
 
 
 export default class DropDown extends React.Component {
 
     constructor() {
         super();
-        
+
         let queryString = window.location.search;
         let urlParams = new URLSearchParams(queryString);
 
         this.state = {
-            name: urlParams.get('name'),
-            table: urlParams.get('table'),
-            showAttendeesByTable: false
+            name: urlParams.get('name') || "",
+            table: urlParams.get('table') || "",
+            showAttendeesByTable: false,
+            tablemates: []
         }
+    }
+
+    componentDidMount() {
+        loadAttendees().then(({ byTable }) => {
+            this.setState({ tablemates: byTable[this.state.table] || [] })
+        });
     }
 
     render() {
@@ -27,8 +35,8 @@ export default class DropDown extends React.Component {
             <div className="max-w-[85rem] mx-auto px-4 pt-inherit pt-12">
                 <div className="max-w-6xl mx-auto text-center">
                 {this.state.name.toLowerCase().includes(funName.toLowerCase()) && <div>
-                    <h2 class="text-9xl">🇬🇧</h2>
-                    <p class="text-2xl my-2 text-red-700">Welcome to this side of the Pond!</p>
+                    <h2 className="text-9xl">🇬🇧</h2>
+                    <p className="text-2xl my-2 text-red-700">Welcome to this side of the Pond!</p>
                 </div>}
                 {!this.state.name.toLowerCase().includes(funName.toLowerCase()) &&
                 <h1 className="block text-4xl font-bold">
@@ -38,7 +46,7 @@ export default class DropDown extends React.Component {
             </div>
             <div className="mx-auto mt-5 text-center text-lg text-slate-400">
                 <p className="text-slate-300 tracking-wider text-xl">{this.state.name}</p>
-               
+
                 <p className="italic">
                 Please make your way to
                 </p>
@@ -48,14 +56,19 @@ export default class DropDown extends React.Component {
                 >
                 Table {this.state.table}
                 </button>
+                <a
+                    href={url("table_map/?") + new URLSearchParams({ table: this.state.table })}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs font-semibold leading-loose text-white transition-all bg-red-800 border border-transparent rounded-md hover:ring-2 focus:outline-none focus:ring-2 focus:ring-red-500 hover:ring-red-500"
+                >
+                    Show me on the map
+                </a>
                 </div>
             {this.state.showAttendeesByTable && (
                 <div className="mx-12 my-10 rounded-3xl text-center font-serif">
                     <ul className="text-xl text-slate-50 tracking-wide">
-                        {console.log(attendeesList)}
-                        {attendeesList.byTable[this.state.table].map((attendee, index) => (
+                        {this.state.tablemates.map((attendee, index) => (
                             <li key={index}>
-                            {attendee.title} {attendee.first_name} {attendee.last_name}
+                            {fullName(attendee)}
                             </li>
                         ))}
                     </ul>
