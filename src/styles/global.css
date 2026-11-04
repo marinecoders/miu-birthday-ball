@@ -1,3 +1,40 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Keep the site's existing fonts, Marine Corps colors, and card glow. */
+@theme {
+  --font-rubik: "Rubik", system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --color-usmc-yellow: #FFC755;
+  --color-scarlet: #BA0C2F;
+  --color-scarlet-dark: #8E0A24;
+  --color-scarlet-light: #E0294F;
+  --color-gold: #FFC72C;
+  --color-gold-soft: #E9C46A;
+  --color-gold-muted: #B8954A;
+  --color-ink: #0B0F17;
+  --color-ink-800: #121826;
+  --color-ink-700: #1A2233;
+  --color-ink-600: #263046;
+  --shadow-glow: 0 0 0 1px rgb(255 199 44 / 0.25), 0 10px 40px -10px rgb(186 12 47 / 0.45);
+}
+
+/* Preserve the defaults used by the existing Tailwind 3 styles. */
+@layer base {
+  *, ::before, ::after, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 /* Site-wide look: night-navy background with a soft scarlet glow at the top. */
 html {
   -webkit-text-size-adjust: 100%;

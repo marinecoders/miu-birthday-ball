@@ -51,7 +51,7 @@
     {#each attendeePromise.uniqueTableNumbers as tableNum}
       <button
         type="button"
-        class="group relative aspect-square rounded-2xl transition hover:scale-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold/40"
+        class="group relative aspect-square rounded-2xl transition hover:scale-105 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-gold/40"
         class:selected={tableNumberSelected === tableNum}
         aria-label={`Table ${tableNum}`}
         aria-pressed={tableNumberSelected === tableNum}

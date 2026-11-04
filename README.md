@@ -1,3 +1,17 @@
+# Local development
+
+Use Node.js 24 (pinned to 24.22.2 for Volta users). The minimum supported Node.js
+version is 22.23.4. TypeScript stays on version 6, which the Svelte integration supports.
+
+```sh
+npm ci
+npm run dev
+```
+
+Open http://localhost:4321/miu-birthday-ball/. The guest list uses encrypted data
+and a key in the URL fragment; see [guest-list/README.md](guest-list/README.md)
+for the guest-list and QR-code workflow.
+
 # Astro Starter Kit: Basics
 
 ```sh

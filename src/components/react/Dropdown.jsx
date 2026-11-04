@@ -1,10 +1,14 @@
 import React from "react";
-import SelectSearch from "react-select-search";
+// Version 4.1.9's ESM bundle references missing React hook imports.
+import SelectSearchModule from "react-select-search/dist/cjs/index.js";
 import 'react-select-search/style.css'
 import { loadAttendees, fullName, getKey, withKey } from "../../lib/attendees.js";
 import { url } from "../../lib/url.js";
 import { BUTTON_PRIMARY } from "../../lib/ui.js";
 import { searchGuests } from "../../lib/search.js";
+
+// Normalize the package's CommonJS default export for dev and production.
+const SelectSearch = SelectSearchModule.default ?? SelectSearchModule;
 
 export default class DropDown extends React.Component {
 
