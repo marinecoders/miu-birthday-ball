@@ -28,7 +28,7 @@ venv
 
 # guest list: only the encrypted file and the fake sample go in git
 guest-list/.key
-guest-list/qr-code.*
+guest-list/qr-code*
 guest-list/*.xlsx
 guest-list/*.csv
 !guest-list/sample_guest_list.xlsx

@@ -3,6 +3,8 @@ import { Stage, Layer, Circle, Group, Text, Rect, Line } from "react-konva";
 import HandDrawnCircle from "./HandDrawnCircle.jsx";
 import YouAreHere from "./YouAreHere.jsx";
 import floorPlan from "../../lib/floor-plan.json";
+import doorSettings from "../../lib/doors.json";
+import { getDoor } from "../../lib/attendees.js";
 
 const MIN_WIDTH = 720;
 const MAX_WIDTH = 960;
@@ -30,13 +32,17 @@ function Doors({ x, y, direction = 1, label }) {
 
 // The reference plan's tables 8–41 become 1–34. Coordinates are shared with
 // the guest-list tools; sourceTable records the number in the reference image.
-export default function SeatingMap({ table }) {
+export default function SeatingMap({ table, door }) {
     const [width, setWidth] = useState(getWidth);
     const [wider, setWider] = useState(false);
     const scroller = useRef(null);
     const selectedNumber = String(table ?? new URLSearchParams(window.location.search).get("table") ?? "");
     const mine = floorPlan.tables.find(t => String(t.number) === selectedNumber);
     const scale = width / floorPlan.width;
+    // "You are here": the door on the guest's QR code (src/lib/doors.json),
+    // or the main entrance when the link has no door.
+    const [doorNumber] = useState(() => String(door ?? getDoor() ?? ""));
+    const here = doorSettings.doors[doorNumber] ?? { ...floorPlan.entrance, label: "above" };
 
     useEffect(() => {
         const resize = () => setWidth(getWidth());
@@ -120,7 +126,7 @@ export default function SeatingMap({ table }) {
                         seed={mine.number} strokeWidth={1.2} />}
                 </Layer>
                 <Layer listening={false}>
-                    <YouAreHere x={floorPlan.entrance.x * scale} y={floorPlan.entrance.y * scale} unit={scale} />
+                    <YouAreHere x={here.x * scale} y={here.y * scale} unit={scale} label={here.label} />
                 </Layer>
             </Stage>
         </div>
