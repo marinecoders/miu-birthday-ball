@@ -10,7 +10,7 @@ First sheet, one row per guest, with this header row:
 |-------|-------|------------|-----------|
 | 1     | Col   | Jane       | Doe       |
 
-`make_sample.py` generates a fake guest list for tables 1–21 in this layout, saved as `sample_guest_list.xlsx`. Regenerate it after a layout change with `python guest-list/make_sample.py`.
+`make_sample.py` generates a fake guest list for tables 1–22 in this layout, saved as `sample_guest_list.xlsx`. Regenerate it after a layout change with `python guest-list/make_sample.py`.
 
 ## Update the guest list
 
@@ -21,16 +21,17 @@ python guest-list/build_guest_list.py path/to/seating_chart.xlsx
 
 This writes `public/attendees.enc.json` and prints the QR code link (`https://marinecoders.github.io/miu-birthday-ball/#k=...`). Then commit and push `public/attendees.enc.json` to publish.
 
-It also lists problems to check: rows with no name, table numbers that aren't numbers or aren't on the floor map (1–21), and names that appear more than once.
+It also lists problems to check: rows with no name, table numbers that aren't numbers or aren't on the floor map (1–22), and names that appear more than once.
 
-The map has **21 guest tables in three rows**, numbered left to right and front
+The map has **22 guest tables in staggered rows**, numbered left to right and front
 to back, with three tables to the left of the ceremony aisle and four to the right
-in each row. The front row wraps around the ceremony area; the full aisle from
+in each of the three main rows, plus Table 22 below Table 17 in the left block.
+The front row wraps around the ceremony area; the full aisle from
 that area to the back wall stays free of tables. The rear row is pulled forward
 to leave extra space around the separate, unnumbered circular **POW/MIA table just right of
-Entry 2**. There are no VIP designations. Use **table numbers 1–21**
+Entry 2**. There are no VIP designations. Use **table numbers 1–22**
 in your seating spreadsheet; existing guest assignments are not automatically
-renumbered. Reassign any guests at removed tables 22–34 and rebuild the encrypted
+renumbered. Reassign any guests at removed tables 23–34 and rebuild the encrypted
 guest list before publishing the new layout.
 The map, validator, and sample generator share `src/lib/floor-plan.json`.
 
@@ -52,7 +53,7 @@ All are git-ignored because the codes contain the key. They only depend on the k
 
 The doors are listed in `src/lib/doors.json`: each door's name (printed on its sign) and where its pin goes on the floor map. The map is a grid 360 wide by 304 tall, with (0, 0) at the top-left. Pins must sit directly below their doorway, at integer coordinates. `label` says where the "You are here" tag sits: `above`, `below`, `left`, or `right` of the pin; active routes place the tag below to keep the doorway visible. After changing door names or adding a door, run `make_qr_code.py` again. Moving a pin only needs a commit and push.
 
-For a direct map link, use `table_map/?table=1&d=4` (under the site's base URL). Both `?d=N` and the printed QR fragment `#k=...&d=N` work; the entry is remembered between pages and replaced by a new scan. Without a known entry, the map asks the guest to scan their entry's QR code instead of guessing a route. The routing bounds and fixed obstacles live alongside the tables in `src/lib/floor-plan.json`; update them when the room layout changes. Run `npm test` to check all 84 entry/table routes for right-angle turns and obstacle clearance.
+For a direct map link, use `table_map/?table=1&d=4` (under the site's base URL). Both `?d=N` and the printed QR fragment `#k=...&d=N` work; the entry is remembered between pages and replaced by a new scan. Without a known entry, the map asks the guest to scan their entry's QR code instead of guessing a route. Phones default to **Fit route**, showing the entire path, entry marker, and selected table without sideways scrolling. **Whole room** restores the overview and **My table** zooms in on the destination. The routing bounds and fixed obstacles live alongside the tables in `src/lib/floor-plan.json`; update them when the room layout changes. Run `npm test` to check all 88 entry/table routes for right-angle turns and obstacle clearance, plus route fitting at phone sizes.
 
 ## The key
 
