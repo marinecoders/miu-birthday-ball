@@ -150,7 +150,7 @@ export default function SeatingMap({ table, door }) {
                         </Group>;
                     })}
                     {mine && <HandDrawnCircle x={mine.x} y={mine.y} radius={11}
-                        seed={mine.number} strokeWidth={1.2} />}
+                        strokeWidth={1.8} />}
                 </Layer>
                 <Layer listening={false}>
                     <YouAreHere x={here.x * scale} y={here.y * scale} unit={scale}
