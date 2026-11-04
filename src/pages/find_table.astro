@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import TableNumber from "../components/react/TableNumber.jsx";
+import Schedule from "../components/marinecorps/Schedule.astro";
 
 import { Image } from "astro:assets";
 import cmcFlag from "../../assets/CMC Flag.png";
@@ -18,6 +19,10 @@ import { BUTTON_SECONDARY } from "../lib/ui.js";
   </script>
 
   <TableNumber client:only="react" />
+
+  <div class="mt-16">
+    <Schedule />
+  </div>
 
   <article
     class="mx-auto mt-16 max-w-2xl px-5"

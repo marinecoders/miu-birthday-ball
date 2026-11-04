@@ -1,0 +1,47 @@
+---
+import { SCHEDULE } from "../../lib/schedule.js";
+
+interface Props {
+  headingLevel?: "h1" | "h2";
+}
+
+const { headingLevel = "h2" } = Astro.props;
+const Heading = headingLevel;
+---
+
+<section
+  class="mx-auto max-w-2xl px-5"
+  aria-labelledby="schedule-title"
+>
+  <Heading
+    id="schedule-title"
+    class="text-center font-serif text-2xl font-semibold text-white sm:text-3xl"
+  >
+    Tonight's Program
+  </Heading>
+
+  <ol class="relative mt-8 space-y-6 border-l border-gold/30 pl-6 sm:pl-8">
+    {
+      SCHEDULE.map((item) => (
+        <li class="relative">
+          <span
+            class="absolute -left-[1.94rem] top-1.5 h-3 w-3 rounded-full border-2 border-gold bg-ink sm:-left-[2.44rem]"
+            aria-hidden="true"
+          />
+          <div class="flex flex-wrap items-baseline gap-x-3">
+            {item.time && <span class="font-semibold tabular-nums tracking-wider text-gold">{item.time}</span>}
+            <h3 class="font-serif text-xl font-semibold text-white">{item.title}</h3>
+          </div>
+          {item.detail && <p class="mt-1 text-sm text-slate-400">{item.detail}</p>}
+          {item.steps && (
+            <ol class="mt-3 list-decimal space-y-1.5 rounded-2xl border border-white/10 bg-ink-800/60 py-4 pl-10 pr-4 text-[0.95rem] text-slate-200 marker:text-gold-muted">
+              {item.steps.map((step) => (
+                <li>{step}</li>
+              ))}
+            </ol>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</section>
