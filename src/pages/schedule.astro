@@ -1,0 +1,37 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Schedule from "../components/marinecorps/Schedule.astro";
+import { EVENT } from "../lib/event.js";
+import { url } from "../lib/url.js";
+import { BUTTON_SECONDARY } from "../lib/ui.js";
+---
+
+<Layout title="Program">
+  <p class="pt-12 text-center text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">
+    {EVENT.title} · {EVENT.date}
+  </p>
+  <div class="mt-4">
+    <Schedule headingLevel="h1" />
+  </div>
+  <div class="mt-12 flex justify-center px-5">
+    <a
+      id="schedule-back"
+      class={BUTTON_SECONDARY}
+      href={url()}
+    >
+      Back
+    </a>
+  </div>
+  <script>
+    import { withKey } from "../lib/attendees.js";
+    const back = document.getElementById("schedule-back");
+    back.href = withKey(back.getAttribute("href"));
+    // Go back to wherever they came from on this site.
+    back.addEventListener("click", (event) => {
+      if (document.referrer && new URL(document.referrer).origin === location.origin) {
+        event.preventDefault();
+        history.back();
+      }
+    });
+  </script>
+</Layout>

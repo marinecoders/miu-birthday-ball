@@ -5,6 +5,7 @@ import DropDown from "../components/react/Dropdown.jsx";
 import TableSelection from "../components/svelte/TableSelection.svelte";
 import miuLogo from "../../assets/Marine Innovation Unit - White.png";
 import { Image } from "astro:assets";
+import { url } from "../lib/url.js";
 ---
 
 <Layout>
@@ -20,6 +21,9 @@ import { Image } from "astro:assets";
   </div>
 
   <script>
+    import { withKey } from "../lib/attendees.js";
+    const program = document.getElementById("program-link");
+    program.href = withKey(program.getAttribute("href"));
     // Once the curtains have opened, take them out of the page entirely.
     for (const curtain of document.querySelectorAll(".curtain")) {
       curtain.addEventListener("animationend", () => curtain.remove());
@@ -42,6 +46,21 @@ import { Image } from "astro:assets";
         Your name
       </label>
       <DropDown client:only="react" />
+    </div>
+    <p class="mt-4 px-2 text-center text-sm leading-relaxed text-slate-400">
+      Can't find your name? Try just your last name, or stop by the
+      <span class="font-medium text-slate-200">check-in table at the entrance</span>
+      and we'll get you to your seat.
+    </p>
+    <div class="mt-5 flex justify-center">
+      <a
+        id="program-link"
+        href={url("schedule/")}
+        class="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-2 text-sm font-medium text-gold-soft transition hover:border-gold hover:bg-gold/10"
+      >
+        <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .2.08.39.22.53l3 3a.75.75 0 1 0 1.06-1.06l-2.78-2.78V5Z" clip-rule="evenodd" /></svg>
+        Tonight's program
+      </a>
     </div>
   </section>
 

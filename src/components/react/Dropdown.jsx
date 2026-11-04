@@ -4,6 +4,7 @@ import 'react-select-search/style.css'
 import { loadAttendees, fullName, getKey, withKey } from "../../lib/attendees.js";
 import { url } from "../../lib/url.js";
 import { BUTTON_PRIMARY } from "../../lib/ui.js";
+import { searchGuests } from "../../lib/search.js";
 
 export default class DropDown extends React.Component {
 
@@ -71,9 +72,11 @@ export default class DropDown extends React.Component {
                         className="select-search"
                         options={this.state.options}
                         search
+                        useFuzzySearch={false}
+                        filterOptions={[searchGuests]}
                         disabled={this.state.loading}
                         placeholder={this.state.loading ? "Loading guest list…" : "Start typing your name"}
-                        emptyMessage="No guest by that name. Try your last name."
+                        emptyMessage="No match yet. Try just your last name."
                         value={this.state.selection}
                         onChange={(value) => this.onChange(value)}
                     />
