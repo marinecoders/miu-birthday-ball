@@ -1,13 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Stage, Layer, Circle, Group, Text, Rect, Line } from "react-konva";
 import HandDrawnCircle from "./HandDrawnCircle.jsx";
 import YouAreHere from "./YouAreHere.jsx";
+import RouteArrow from "./RouteArrow.jsx";
 import floorPlan from "../../lib/floor-plan.json";
 import doorSettings from "../../lib/doors.json";
-import { getDoor } from "../../lib/attendees.js";
+import { getDoor } from "../../lib/entry.js";
+import { findTableRoute } from "../../lib/table-route.js";
 
 const MIN_WIDTH = 720;
 const MAX_WIDTH = 960;
+const [ceremony, podium, narrator, ...projectors] = floorPlan.obstacles;
 
 function getWidth() {
     return Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, window.innerWidth - 24));
@@ -25,7 +28,7 @@ function Doors({ x, y, direction = 1, label }) {
         <Line points={[x - 9, y, x + 9, y]} stroke="#fafaf9" strokeWidth={3} />
         <Line points={[x - 9, y, x - 9, y + 8 * direction, x, y, x + 9, y + 8 * direction, x + 9, y]}
             stroke="#94a3b8" strokeWidth={0.7} lineJoin="round" />
-        <MapLabel x={x - 18} y={y - 12} width={36} height={8}
+        <MapLabel x={x - 26} y={y - 12} width={24} height={8}
             text={label} fontSize={3.8} fontStyle="bold" fill="#334155" />
     </Group>;
 }
@@ -41,8 +44,27 @@ export default function SeatingMap({ table, door }) {
     const scale = width / floorPlan.width;
     // "You are here": the door on the guest's QR code (src/lib/doors.json),
     // or the main entrance when the link has no door.
-    const [doorNumber] = useState(() => String(door ?? getDoor() ?? ""));
+    const [scannedDoor, setScannedDoor] = useState(() => getDoor());
+    const doorNumber = String(door ?? scannedDoor ?? "");
     const here = doorSettings.doors[doorNumber] ?? { ...floorPlan.entrance, label: "above" };
+    const route = useMemo(() => findTableRoute(floorPlan, doorSettings.doors[doorNumber], selectedNumber),
+        [doorNumber, selectedNumber]);
+    const routeDescription = mine ? route
+        ? `Follow the blue path from Entry ${doorNumber} to Table ${mine.number}.`
+        : doorSettings.doors[doorNumber]
+            ? "A clear route could not be found. Please ask the entrance staff for directions."
+            : "Scan the QR code at your entry to see a path to your table."
+        : "";
+
+    useEffect(() => {
+        const updateDoor = () => setScannedDoor(getDoor());
+        window.addEventListener("hashchange", updateDoor);
+        window.addEventListener("popstate", updateDoor);
+        return () => {
+            window.removeEventListener("hashchange", updateDoor);
+            window.removeEventListener("popstate", updateDoor);
+        };
+    }, []);
 
     useEffect(() => {
         const resize = () => setWidth(getWidth());
@@ -64,37 +86,40 @@ export default function SeatingMap({ table, door }) {
     }, [width, selectedNumber]);
 
     return <>
+        {routeDescription && <p className="mb-3 text-center text-sm text-slate-300" role="status">
+            {routeDescription}
+        </p>}
         <div ref={scroller}
             className="overflow-x-auto overscroll-x-contain rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
             style={{ maxWidth: width + 2, margin: "0 auto" }}
             role="img" aria-label={`Ballroom floor plan, tables 1–34 in four rows. Entries 1–4 run right to left along the bottom wall. ${mine
                 ? `Table ${mine.number} is circled in red in seating row ${mine.row}, counting from the podium.`
-                : "The podium is at the top and the main entrance is at the bottom."}`}>
+                : "The podium is at the top and the main entrance is at the bottom."} ${routeDescription}`}>
             <Stage width={width} height={floorPlan.height * scale}
                 style={{ pointerEvents: "none", backgroundColor: "#fafaf9", width }}>
                 <Layer scaleX={scale} scaleY={scale} listening={false}>
                     {/* Ballroom and the foyer/bar area, oriented as in the reference. */}
                     <Line points={[12, 220, 12, 292, 244, 292, 244, 248, 280, 248, 324, 284, 350, 262, 343, 220]}
                         fill="#f1f5f9" stroke="#475569" strokeWidth={1.2} closed />
-                    <Rect x={12} y={18} width={336} height={202}
+                    <Rect {...floorPlan.ballroom}
                         fill="#fafaf9" stroke="#334155" strokeWidth={1.5} />
                     {[302, 224, 148, 78].map((x, index) =>
                         <Doors key={`back-${x}`} x={x} y={220} label={`Entry ${index + 1}`} />)}
 
                     {/* The removed front row stays open; the ceremony area remains. */}
-                    {[47, 220].map(x => <Group key={x}>
-                        <Rect x={x} y={22} width={50} height={13} fill="#e2e8d3" cornerRadius={1.5} />
-                        <MapLabel x={x} y={24} width={50} text="PROJECTOR" fontSize={3.5} fill="#526442" />
+                    {projectors.map(projector => <Group key={projector.id}>
+                        <Rect {...projector} fill="#e2e8d3" cornerRadius={1.5} />
+                        <MapLabel x={projector.x} y={24} width={50} text="PROJECTOR" fontSize={3.5} fill="#526442" />
                     </Group>)}
-                    <Rect x={136} y={42} width={60} height={57} fill="#e7e5e4"
+                    <Rect {...ceremony} fill="#e7e5e4"
                         stroke="#cbd5e1" strokeWidth={0.7} cornerRadius={2} />
                     <MapLabel x={139} y={60} width={54} height={20} text={"CEREMONY\nAREA"}
                         fontSize={4.5} fill="#64748b" lineHeight={1.4} />
-                    <Rect x={151} y={26} width={30} height={12} fill="#334155" cornerRadius={1} />
+                    <Rect {...podium} fill="#334155" cornerRadius={1} />
                     <MapLabel x={151} y={28} width={30} text="PODIUM" fontSize={4} fill="#ffffff" fontStyle="bold" />
                     <Group id="narrator-podium">
                         <MapLabel x={186} y={25} width={36} text="NARRATOR" fontSize={3.2} />
-                        <Rect x={198} y={32} width={12} height={9} fill="#334155" cornerRadius={1} />
+                        <Rect {...narrator} fill="#334155" cornerRadius={1} />
                         <Line points={[200, 34, 208, 34]} stroke="#cbd5e1" strokeWidth={0.6} />
                     </Group>
 
@@ -109,6 +134,8 @@ export default function SeatingMap({ table, door }) {
                         <Rect x={x} y={276} width={34} height={9} fill="#cbd5e1" cornerRadius={1} />
                         <MapLabel x={x} y={277} width={34} height={7} text="BAR" fontSize={3.8} fill="#334155" />
                     </Group>)}
+
+                    {route && <RouteArrow route={route} />}
 
                     {floorPlan.tables.map(t => {
                         const isMine = t === mine;
@@ -126,7 +153,8 @@ export default function SeatingMap({ table, door }) {
                         seed={mine.number} strokeWidth={1.2} />}
                 </Layer>
                 <Layer listening={false}>
-                    <YouAreHere x={here.x * scale} y={here.y * scale} unit={scale} label={here.label} />
+                    <YouAreHere x={here.x * scale} y={here.y * scale} unit={scale}
+                        label={route ? "below" : here.label} />
                 </Layer>
             </Stage>
         </div>

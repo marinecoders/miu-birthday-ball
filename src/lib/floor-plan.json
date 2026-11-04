@@ -3,6 +3,14 @@
   "height": 304,
   "tableRadius": 8,
   "entrance": { "x": 148, "y": 237 },
+  "ballroom": { "x": 12, "y": 18, "width": 336, "height": 202 },
+  "obstacles": [
+    { "id": "ceremony", "x": 136, "y": 42, "width": 60, "height": 57 },
+    { "id": "podium", "x": 151, "y": 26, "width": 30, "height": 12 },
+    { "id": "narrator", "x": 198, "y": 32, "width": 12, "height": 9 },
+    { "id": "projector-left", "x": 47, "y": 22, "width": 50, "height": 13 },
+    { "id": "projector-right", "x": 220, "y": 22, "width": 50, "height": 13 }
+  ],
   "tables": [
     { "number": 1, "sourceTable": 8, "row": 1, "x": 46, "y": 92 },
     { "number": 2, "sourceTable": 9, "row": 1, "x": 76, "y": 86 },

@@ -36,7 +36,7 @@ pip install segno
 python guest-list/make_qr_code.py
 ```
 
-Each ballroom door gets its own QR code. It carries the key plus that door's number (`#k=...&d=2`), so the floor map shows "You are here" at the door the guest walked in. The script writes:
+Each ballroom door gets its own QR code. It carries the key plus that door's number (`#k=...&d=2`), so the floor map shows "You are here" at the door the guest walked in. Once they select their table, a blue path leads through that entry to the table, using right-angle turns and leaving clearance around tables and fixed obstacles. Entries 1–4 run right to left. Existing printed QR codes work without regeneration. The script writes:
 
 - `qr-code-door-N.svg` (best for printing) and `qr-code-door-N.png`, for each door
 - `qr-codes-print.html`: one labeled sign per door, one per page. Open it in a browser and print.
@@ -45,7 +45,9 @@ All are git-ignored because the codes contain the key. They only depend on the k
 
 ### Doors
 
-The doors are listed in `src/lib/doors.json`: each door's name (printed on its sign) and where its pin goes on the floor map. The map is a grid 360 wide by 198 tall, with (0, 0) at the top-left. `label` says where the "You are here" tag sits: `above`, `below`, `left`, or `right` of the pin. After changing door names or adding a door, run `make_qr_code.py` again. Moving a pin only needs a commit and push.
+The doors are listed in `src/lib/doors.json`: each door's name (printed on its sign) and where its pin goes on the floor map. The map is a grid 360 wide by 304 tall, with (0, 0) at the top-left. Pins must sit directly below their doorway, at integer coordinates. `label` says where the "You are here" tag sits: `above`, `below`, `left`, or `right` of the pin; active routes place the tag below to keep the doorway visible. After changing door names or adding a door, run `make_qr_code.py` again. Moving a pin only needs a commit and push.
+
+For a direct map link, use `table_map/?table=1&d=4` (under the site's base URL). Both `?d=N` and the printed QR fragment `#k=...&d=N` work; the entry is remembered between pages and replaced by a new scan. Without a known entry, the map asks the guest to scan their entry's QR code instead of guessing a route. The routing bounds and fixed obstacles live alongside the tables in `src/lib/floor-plan.json`; update them when the room layout changes. Run `npm test` to check all 136 entry/table routes for right-angle turns and obstacle clearance.
 
 ## The key
 
