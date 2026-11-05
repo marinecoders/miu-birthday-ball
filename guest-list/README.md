@@ -34,26 +34,29 @@ in your seating spreadsheet; existing guest assignments are not automatically
 renumbered. Reassign any guests at removed tables 23–34 and rebuild the encrypted
 guest list before publishing the new layout.
 The map, validator, and sample generator share `src/lib/floor-plan.json`.
+Restrooms are marked outside the right-hand wall, with a dashed guide from the
+lower-right foyer. Their icon and guide coordinates are in the `restrooms` field
+of the floor plan; **Whole room** shows the complete guide.
 
-## Make the QR codes (one per door)
+## Make the QR codes (one per location)
 
 ```bash
 pip install segno
 python guest-list/make_qr_code.py
 ```
 
-Each ballroom door gets its own QR code. It carries the key plus that door's number (`#k=...&d=2`), so the floor map shows "You are here" at the door the guest walked in. Once they select their table, a blue path leads through that entry to the table, using right-angle turns and leaving clearance around tables and fixed obstacles. Entries 1–4 run right to left. Existing printed QR codes work without regeneration. The script writes:
+Each ballroom door gets its own QR code. It carries the key plus that door's number (`#k=...&d=2`), so the floor map shows "You are here" at the door the guest walked in. Once they select their table, a blue path leads through that entry to the table, using right-angle turns and leaving clearance around tables and fixed obstacles. Entries 1–4 run right to left. **Location 5 (Main poster)** sits in the middle of the foyer between Entries 2 and 3; its `d=5` code routes through whichever of those entries gives the shorter clear path, accounting for turns. Existing printed QR codes work without regeneration. Run the script to generate the new location 5 sign. The script writes:
 
 - `qr-code-door-N.svg` (best for printing) and `qr-code-door-N.png`, for each door
 - `qr-codes-print.html`: one labeled sign per door, one per page. Open it in a browser and print.
 
-All are git-ignored because the codes contain the key. They only depend on the key and door numbers, so they keep working when you update the guest list. Print each at least 2 inches (5 cm) wide, post it at **its own door**, and test-scan it there.
+All are git-ignored because the codes contain the key. They only depend on the key and location numbers, so they keep working when you update the guest list. Print each at least 2 inches (5 cm) wide, post it at **its own location**, and test-scan it there.
 
 ### Doors
 
-The doors are listed in `src/lib/doors.json`: each door's name (printed on its sign) and where its pin goes on the floor map. The map is a grid 360 wide by 304 tall, with (0, 0) at the top-left. Pins must sit directly below their doorway, at integer coordinates. `label` says where the "You are here" tag sits: `above`, `below`, `left`, or `right` of the pin; active routes place the tag below to keep the doorway visible. After changing door names or adding a door, run `make_qr_code.py` again. Moving a pin only needs a commit and push.
+The QR locations are listed in `src/lib/doors.json`: each location's name (printed on its sign) and where its pin goes on the floor map. The map is a grid 385 wide by 304 tall, with (0, 0) at the top-left. All pins use integer coordinates. Door pins sit directly below their doorway. A foyer location supplies `via` points directly below its allowed doorways; its route goes up to their shared foyer lane, across to the chosen doorway, then into the ballroom. Keep that foyer lane clear when moving a location. `label` says where the "You are here" tag sits: `above`, `below`, `left`, or `right` of the pin; active routes place the tag below to keep the doorway visible. After changing names or adding a location, run `make_qr_code.py` again. Moving a pin only needs a commit and push.
 
-For a direct map link, use `table_map/?table=1&d=4` (under the site's base URL). Both `?d=N` and the printed QR fragment `#k=...&d=N` work; the entry is remembered between pages and replaced by a new scan. Without a known entry, the map asks the guest to scan their entry's QR code instead of guessing a route. Phones default to **Fit route**, showing the entire path, entry marker, and selected table without sideways scrolling. **Whole room** restores the overview and **My table** zooms in on the destination. Zoom is capped at **1.6×** overview for routes and **2×** for table close-ups, with the previous desktop limits retained; longer routes zoom farther out as needed. The routing bounds and fixed obstacles live alongside the tables in `src/lib/floor-plan.json`; update them when the room layout changes. Run `npm test` to check all 88 entry/table routes for right-angle turns and obstacle clearance, plus route fitting and zoom limits at phone sizes.
+For a direct map link, use `table_map/?table=1&d=4` (under the site's base URL), or `table_map/?table=1&d=5` for the Main poster. Both `?d=N` and the printed QR fragment `#k=...&d=N` work; the location is remembered between pages and replaced by a new scan. Without a known location, the map asks the guest to scan their entry's QR code instead of guessing a route. Phones default to **Fit route**, showing the entire path, entry marker, and selected table without sideways scrolling. **Whole room** restores the overview and **My table** zooms in on the destination. Zoom is capped at **1.6×** overview for routes and **2×** for table close-ups, with the previous desktop limits retained; longer routes zoom farther out as needed. The routing bounds and fixed obstacles live alongside the tables in `src/lib/floor-plan.json`; update them when the room layout changes. Run `npm test` to check all 110 location/table routes for right-angle turns and obstacle clearance, plus route fitting and zoom limits at phone sizes.
 
 ## The key
 

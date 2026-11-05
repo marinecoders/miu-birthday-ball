@@ -68,6 +68,18 @@ test('whole-room view fits the complete floor plan on portrait and landscape scr
     }
 });
 
+test('the restroom icon and outside guide fit in the whole-room view at phone and desktop sizes', () => {
+    const { x, y, radius, guide } = plan.restrooms;
+    assert.ok(x - radius > plan.ballroom.x + plan.ballroom.width, 'icon is outside the right wall');
+    assert.ok(x + radius < plan.width && y - radius >= 0 && y + radius < plan.height);
+    const points = [{ x: x - radius, y: y - radius }, { x: x + radius, y: y + radius }];
+    for (let i = 0; i < guide.length; i += 2) points.push({ x: guide[i], y: guide[i + 1] });
+    for (const [width, height] of [[280, 260], [320, 280], [375, 400], [844, 280], [960, 744]]) {
+        const view = getMapView(plan, { mode: 'room', width, height });
+        for (const point of points) within(view, point, width, height, 'restroom landmark');
+    }
+});
+
 test('my-table view centers and enlarges the selected table; missing context falls back to whole room', () => {
     const width = 375, height = 400, table = plan.tables.at(-1);
     const overview = getMapView(plan, { mode: 'room', width, height });
