@@ -41,30 +41,61 @@ function Doors({ x, y, direction = 1, label }) {
     </Group>;
 }
 
+// Information-page additions east of the ballroom, from the venue plan: a
+// hallway from the foyer up the east side to the restrooms in the top right.
+const VENUE_WIDTH = 440;
+function VenueExtras() {
+    const hall = "#f1f5f9", wall = "#475569";
+    return <Group id="venue-extras" listening={false}>
+        {/* Hallway: up the east side of the ballroom, then along to the restrooms. */}
+        <Line points={[348, 64, 434, 64, 434, 84, 378, 84, 378, 262, 350, 262, 343, 220, 348, 220]}
+            fill={hall} closed />
+        {/* Walls on the outside only, so the hallway stays open to the foyer. */}
+        <Line points={[348, 64, 434, 64, 434, 84, 378, 84, 378, 262, 350, 262]}
+            stroke={wall} strokeWidth={1.2} lineJoin="round" />
+        <Line points={[350, 262, 343, 220]} stroke={hall} strokeWidth={2.6} />
+        <MapLabel x={330} y={150} width={96} height={10} text="HALLWAY" fontSize={4.4}
+            fill="#64748b" letterSpacing={1} rotation={-90} offsetX={-3} offsetY={-38} />
+        {/* Restrooms, doors opening onto the hallway. */}
+        {[{ x: 352, label: "MEN" }, { x: 394, label: "WOMEN" }].map(room => <Group key={room.label}>
+            <Rect x={room.x} y={20} width={40} height={44} fill="#e0e7ff" stroke={wall} strokeWidth={1.2} />
+            <Line points={[room.x + 8, 64, room.x + 20, 64]} stroke={hall} strokeWidth={2.4} />
+            <Path data={`M${room.x + 8} 64 A12 12 0 0 1 ${room.x + 20} 52`} stroke="#94a3b8" strokeWidth={0.7} />
+            <MapLabel x={room.x} y={32} width={40} height={8} text={room.label} fontSize={4.6}
+                fontStyle="bold" fill="#3730a3" />
+        </Group>)}
+        <MapLabel x={352} y={10} width={82} height={8} text="RESTROOMS" fontSize={4.6}
+            fontStyle="bold" fill="#3730a3" letterSpacing={0.8} />
+    </Group>;
+}
+
 // Staggered rows flank the ceremony aisle; table 22 sits behind the left block.
 // Coordinates are shared with routing and the guest-list tools.
-export default function SeatingMap({ table, door }) {
+// venue: the Information-page map. No guest table, route, entry pin, or view
+// buttons; the room is widened to show the hallway and restrooms.
+export default function SeatingMap({ table, door, venue = false }) {
     const [viewport, setViewport] = useState(getViewport);
     const [viewChoice, setViewChoice] = useState(null);
     const container = useRef(null);
-    const selectedNumber = String(table ?? new URLSearchParams(window.location.search).get("table") ?? "");
+    const selectedNumber = venue ? "" : String(table ?? new URLSearchParams(window.location.search).get("table") ?? "");
     const mine = floorPlan.tables.find(t => String(t.number) === selectedNumber);
     // "You are here": the door on the guest's QR code (src/lib/doors.json),
     // or the main entrance when the link has no door.
     const [scannedDoor, setScannedDoor] = useState(() => getDoor());
     const doorNumber = String(door ?? scannedDoor ?? "");
     const here = doorSettings.doors[doorNumber] ?? { ...floorPlan.entrance, label: "above" };
-    const route = useMemo(() => findTableRoute(floorPlan, doorSettings.doors[doorNumber], selectedNumber),
-        [doorNumber, selectedNumber]);
+    const route = useMemo(() => venue ? null : findTableRoute(floorPlan, doorSettings.doors[doorNumber], selectedNumber),
+        [doorNumber, selectedNumber, venue]);
+    const plan = venue ? { ...floorPlan, width: VENUE_WIDTH } : floorPlan;
     const viewContext = `${selectedNumber}:${doorNumber}`;
     const mode = viewChoice?.context === viewContext ? viewChoice.mode
         : viewport.compact && route ? "route" : "room";
     const { width } = viewport;
     const height = Math.round(viewport.compact
-        ? mode === "room" ? width * floorPlan.height / floorPlan.width
+        ? mode === "room" ? width * plan.height / plan.width
             : Math.min(viewport.maxHeight, mode === "table" ? width : Math.max(280, width * 1.1))
-        : width * floorPlan.height / floorPlan.width);
-    const view = getMapView(floorPlan, { width, height, mode, route, table: mine, origin: here });
+        : width * plan.height / plan.width);
+    const view = getMapView(plan, { width, height, mode, route, table: mine, origin: here });
     const { scale } = view;
     const chooseView = mode => setViewChoice({ context: viewContext, mode });
     const routeDescription = mine ? route
@@ -116,7 +147,9 @@ export default function SeatingMap({ table, door }) {
         <div ref={container}
             className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
             style={{ width: "100%", maxWidth: MAX_WIDTH + 2, margin: "0 auto" }}
-            role="img" aria-label={`Ballroom floor plan, tables ${tableRange} in ${rowCount} seating rows, with staggered tables on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Entries 1–4 run right to left along the bottom wall. ${mine
+            role="img" aria-label={venue
+                ? `Ballroom floor plan with tables ${tableRange}, the ceremony area at the top, entries 1–4 along the bottom wall opening into the foyer and bars, and a hallway up the east side to the men's and women's restrooms in the top right.`
+                : `Ballroom floor plan, tables ${tableRange} in ${rowCount} seating rows, with staggered tables on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Entries 1–4 run right to left along the bottom wall. ${mine
                 ? `Table ${mine.number} is circled in red in seating row ${mine.row}, counting from the podium.`
                 : "The podium is at the top and the main entrance is at the bottom."} ${routeDescription}`}>
             <Stage width={width} height={height}
@@ -131,6 +164,7 @@ export default function SeatingMap({ table, door }) {
                         <Path data="M54 232 H45 A9 9 0 0 0 54 241 M54 250 H45 A9 9 0 0 1 54 241"
                             stroke="#94a3b8" strokeWidth={0.7} />
                     </Group>
+                    {venue && <VenueExtras />}
                     <Rect {...floorPlan.ballroom}
                         fill="#fafaf9" stroke="#334155" strokeWidth={1.5} />
                     <Group id="ceremony-aisle">
@@ -194,10 +228,10 @@ export default function SeatingMap({ table, door }) {
                     {mine && <HandDrawnCircle x={mine.x} y={mine.y} radius={11}
                         strokeWidth={1.8} />}
                 </Layer>
-                <Layer x={view.x} y={view.y} listening={false}>
+                {!venue && <Layer x={view.x} y={view.y} listening={false}>
                     <YouAreHere x={here.x * scale} y={here.y * scale} unit={scale}
                         label={route ? "below" : here.label} />
-                </Layer>
+                </Layer>}
             </Stage>
         </div>
         {selectedNumber && !mine && <p className="mt-2 text-center text-sm text-gold" role="status">

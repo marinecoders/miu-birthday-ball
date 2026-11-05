@@ -63,3 +63,19 @@ For a direct map link, use `table_map/?table=1&d=4` (under the site's base URL).
 - Anyone else who updates the list needs a copy of `.key`.
 
 Spreadsheets (`*.xlsx`, `*.csv`) in this folder are ignored by git, except the sample, so the real seating chart can sit here safely.
+
+## The ball's seating chart
+
+`build_guest_list.py` also reads the ball's seating chart (`MIU_Birthday_Ball_Seating_Chart.xlsx`, "Seating Roster" sheet: Table, Seat, Guest Name, Rank, Meal). Only table, seat, title, name, and meal are encrypted; buyer, detachment, seating requests, and ticket numbers never leave your computer. "Other" ranks (civilians) show no title.
+
+```bash
+python guest-list/build_guest_list.py guest-list/MIU_Birthday_Ball_Seating_Chart.xlsx
+```
+
+## Information page (table QR code)
+
+The QR code on each table opens the Information page (`/info/`): map with restrooms, bars, program, honored guests, ceremony participants, and the Commandant's message.
+
+- General information is public. The **people** (guest of honor, oldest and youngest Marine, ceremony participants) come from `guest-list/event_people.json`, which stays on your computer (git-ignored). `build_guest_list.py` encrypts it into `public/event.enc.json` with the same key, so they only show for people who scan the table code.
+- `make_qr_code.py` writes the table code as `qr-code-info.svg/png` and a printable table sign, `qr-code-info-print.html` (print one per table).
+- The "Good to know" cards (bars, restrooms, ...) are in `src/lib/info.js`.

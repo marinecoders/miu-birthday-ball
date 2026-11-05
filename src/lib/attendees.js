@@ -88,6 +88,26 @@ export function loadAttendees() {
   return cache;
 }
 
+// The Information page's people (guest of honor, oldest and youngest Marine,
+// ceremony participants), encrypted with the same key as the guest list.
+// Resolves to null when there's no key or it doesn't match, so the page can
+// still show its public parts.
+let peopleCache;
+export function loadEventPeople() {
+  peopleCache ??= (async () => {
+    const key = getKey();
+    if (!key) return null;
+    const response = await fetch(url("event.enc.json"), { cache: "no-cache" });
+    if (!response.ok) return null;
+    try {
+      return await decrypt(await response.json(), key);
+    } catch {
+      return null;
+    }
+  })();
+  return peopleCache;
+}
+
 export function fullName(attendee) {
   return [attendee.title, attendee.first_name, attendee.last_name].filter(Boolean).join(" ");
 }

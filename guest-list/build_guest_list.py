@@ -29,6 +29,10 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 HERE = Path(__file__).parent
 OUT = HERE.parent / "public" / "attendees.enc.json"
+# Information-page people (guest of honor, oldest/youngest Marine, ceremony
+# participants): kept on this computer, published only encrypted.
+PEOPLE_IN = HERE / "event_people.json"
+PEOPLE_OUT = HERE.parent / "public" / "event.enc.json"
 KEY_FILE = HERE / ".key"
 SITE = "https://marinecoders.github.io/miu-birthday-ball"  # change if you add a custom domain
 FLOOR_PLAN = json.loads((HERE.parent / "src" / "lib" / "floor-plan.json").read_text(encoding="utf-8"))
@@ -121,6 +125,13 @@ def parse_guests(path: Path) -> tuple[list[dict], list[str]]:
     return guests, problems
 
 
+def encrypt_to(path: Path, data, key: bytes) -> None:
+    iv = os.urandom(12)
+    plaintext = json.dumps(data, separators=(",", ":")).encode()
+    ciphertext = AESGCM(key).encrypt(iv, plaintext, None)  # AES-256-GCM, tag appended (what WebCrypto expects)
+    path.write_text(json.dumps({"v": 1, "iv": b64url(iv), "data": b64url(ciphertext)}), encoding="utf-8")
+
+
 def load_key(new: bool) -> bytes:
     if KEY_FILE.exists() and not new:
         return unb64url(KEY_FILE.read_text().strip())
@@ -139,10 +150,12 @@ def main() -> None:
     guests, problems = parse_guests(args.spreadsheet)
     key = load_key(args.new_key)
 
-    iv = os.urandom(12)
-    plaintext = json.dumps(guests, separators=(",", ":")).encode()
-    ciphertext = AESGCM(key).encrypt(iv, plaintext, None)  # AES-256-GCM, tag appended (what WebCrypto expects)
-    OUT.write_text(json.dumps({"v": 1, "iv": b64url(iv), "data": b64url(ciphertext)}), encoding="utf-8")
+    encrypt_to(OUT, guests, key)
+    if PEOPLE_IN.exists():
+        people = json.loads(PEOPLE_IN.read_text(encoding="utf-8"))
+        people.pop("_help", None)
+        encrypt_to(PEOPLE_OUT, people, key)
+        print(f"Encrypted the Information page's people from {PEOPLE_IN.name} into {PEOPLE_OUT}")
 
     print(f"Encrypted {len(guests)} guests at {len({g['table'] for g in guests})} tables into {OUT}")
     meals = Counter(g["meal"] for g in guests if g.get("meal"))
