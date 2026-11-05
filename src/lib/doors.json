@@ -1,5 +1,5 @@
 {
-  "_help": "QR locations keyed by the d=N value in each code. Locations 1-4 match the ballroom doors on the south wall (y=220), numbered right to left. Location 5 is the Main poster in the foyer between Entries 2 and 3, not an additional physical doorway. name: printed on the QR sign. x, y: You Are Here pin coordinates in src/lib/floor-plan.json units, (0,0) top-left. via: optional doorway approach points; routes from a foyer location use the shortest clear route through one of these approaches. label: pin label position (above, below, left, or right).",
+  "_help": "QR locations keyed by the d=N value in each code. Locations 1-4 match the ballroom doors on the south wall (y=220), numbered right to left. Location 5 is the Main poster in the foyer between Entries 2 and 3. Location 6 is the Right-side poster just outside the ballroom's lower-right corner. Both posters can route through any of the four entries, choosing the entry with the shortest clear indoor path to the destination table; the walk from the poster breaks ties. Poster locations are not additional physical doorways. name: printed on the QR sign. x, y: You Are Here pin coordinates in src/lib/floor-plan.json units, (0,0) top-left. via: optional doorway approach points. label: pin label position (above, below, left, or right).",
   "doors": {
     "1": {
       "name": "Entry 1 - far right",
@@ -31,6 +31,13 @@
       "y": 260,
       "label": "above",
       "via": [{ "x": 148, "y": 237 }, { "x": 224, "y": 237 }, { "x": 302, "y": 237 }, { "x": 78, "y": 237 }]
+    },
+    "6": {
+      "name": "Right-side poster",
+      "x": 353,
+      "y": 211,
+      "label": "left",
+      "via": [{ "x": 302, "y": 237 }, { "x": 224, "y": 237 }, { "x": 148, "y": 237 }, { "x": 78, "y": 237 }]
     }
   }
 }

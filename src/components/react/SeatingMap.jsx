@@ -71,7 +71,9 @@ export default function SeatingMap({ table, door, venue = false }) {
     const view = getMapView(plan, { width, height, mode, route, table: mine, origin: here });
     const { scale } = view;
     const chooseView = mode => setViewChoice({ context: viewContext, mode });
-    const firstIndoorPoint = route?.find(point => point.y < floorPlan.ballroom.y + floorPlan.ballroom.height);
+    const roomBottom = floorPlan.ballroom.y + floorPlan.ballroom.height;
+    const firstIndoorPoint = route?.find((point, index) => index > 0
+        && route[index - 1].y >= roomBottom && point.y < roomBottom);
     const routedEntry = Object.entries(doorSettings.doors)
         .find(([, entry]) => !entry.via && entry.x === firstIndoorPoint?.x)?.[0];
     const originName = here.via ? here.name : `Entry ${doorNumber}`;

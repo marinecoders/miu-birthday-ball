@@ -74,7 +74,12 @@ function simplify(points) {
     return result;
 }
 
-// Foyer locations can supply doorway approaches; ordinary entry pins sit
+function routeLength(points) {
+    return points.slice(1).reduce((sum, point, index) => sum
+        + Math.abs(point.x - points[index].x) + Math.abs(point.y - points[index].y), 0);
+}
+
+// Foyer and outside-corner locations can supply doorway approaches; entry pins sit
 // directly south of their doorway. Search inside the ballroom only, so the
 // indoor route cannot leave through a different door or cross a side wall.
 // A* tracks arrival direction and charges for turns to favor simple aisle paths.
@@ -83,20 +88,24 @@ export function findTableRoute(plan, door, tableNumber) {
     if (!table || !door || !Number.isInteger(door.x) || !Number.isInteger(door.y)) return null;
     const { blocked, left, right, top, bottom } = getGrid(plan);
     const { width, height } = plan;
-    if (door.x < left || door.x > right || door.y < plan.ballroom.y + plan.ballroom.height || door.y >= height) return null;
+    if (door.x < 0 || door.x >= width || door.y < 0 || door.y >= height) return null;
     if (door.via) {
-        let best = null, bestCost = Infinity;
+        let best = null;
         for (const entry of door.via) {
             const indoor = findTableRoute(plan, entry, tableNumber);
             if (!indoor) continue;
             const route = simplify([{ x: door.x, y: door.y }, { x: door.x, y: entry.y }, ...indoor]);
-            const cost = route.slice(1).reduce((sum, point, index) => sum
-                + Math.abs(point.x - route[index].x) + Math.abs(point.y - route[index].y), 0)
-                + TURN_COST * (route.length - 2);
-            if (cost < bestCost) { best = route; bestCost = cost; }
+            // Choose the entry closest to the table along a clear indoor path.
+            // Only use the walk from the poster (then turns) to break ties.
+            const distance = routeLength(indoor), total = routeLength(route);
+            if (!best || distance < best.distance || (distance === best.distance
+                && (total < best.total || (total === best.total && route.length < best.route.length)))) {
+                best = { route, distance, total };
+            }
         }
-        return best;
+        return best?.route ?? null;
     }
+    if (door.x < left || door.x > right || door.y < plan.ballroom.y + plan.ballroom.height) return null;
     const start = bottom * width + door.x;
     if (blocked[start]) return null;
     const distance = plan.tableRadius + ROUTE_CLEARANCE + 1;

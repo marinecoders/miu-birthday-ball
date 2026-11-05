@@ -14,7 +14,7 @@ function intersects(a, b, rect) {
         && Math.max(a.y, b.y) >= rect.y && Math.min(a.y, b.y) <= rect.y + rect.height;
 }
 
-test('all 110 QR location/table routes use clear right-angle aisles and the correct doorway', () => {
+test('all 132 QR location/table routes use clear right-angle aisles and the correct doorway', () => {
     const obstacles = [
         ...plan.tables.map(t => ({ x: t.x - tablePadding, y: t.y - tablePadding,
             width: tablePadding * 2, height: tablePadding * 2 })),
@@ -32,7 +32,7 @@ test('all 110 QR location/table routes use clear right-angle aisles and the corr
             if (door.via) {
                 assert.deepEqual(route[1], { x: door.x, y: 237 }, `${context}: use the open foyer lane`);
                 assert.ok(door.via.some(entry => entry.x === approach.x && entry.y === approach.y),
-                    `${context}: choose Entry 2 or 3`);
+                    `${context}: choose a configured entry`);
             }
             assert.equal(route[indoorIndex].x, approach.x, `${context}: pass vertically through this door`);
             assert.ok(route[indoorIndex].y <= 217, `${context}: first indoor turn inside the ballroom`);
@@ -62,31 +62,56 @@ test('all 110 QR location/table routes use clear right-angle aisles and the corr
     }
 });
 
-test('the Main poster uses both central entries and falls back when one is blocked', () => {
-    const entriesUsed = new Set();
-    for (const table of plan.tables) {
-        const route = findTableRoute(plan, doors[5], table.number);
-        entriesUsed.add(route[2].x);
-        const cost = points => points.slice(1).reduce((sum, point, index) => sum
-            + Math.abs(point.x - points[index].x) + Math.abs(point.y - points[index].y), 0)
-            + 6 * (points.length - 2);
-        for (const entry of doors[5].via) {
-            const candidate = [{ x: doors[5].x, y: doors[5].y }, { x: doors[5].x, y: entry.y },
-                ...findTableRoute(plan, entry, table.number)];
-            assert.ok(cost(route) <= cost(candidate), 'choose the shorter route including turns');
+test('both posters choose the entry closest to the table along a clear indoor path', () => {
+    const distance = points => points.slice(1).reduce((sum, point, index) => sum
+        + Math.abs(point.x - points[index].x) + Math.abs(point.y - points[index].y), 0);
+    for (const poster of [doors[5], doors[6]]) {
+        const entriesUsed = new Set();
+        for (const table of plan.tables) {
+            const route = findTableRoute(plan, poster, table.number);
+            entriesUsed.add(route[2].x);
+            for (const number of [1, 2, 3, 4]) {
+                const indoor = findTableRoute(plan, doors[number], table.number);
+                assert.ok(distance(route.slice(2)) <= distance(indoor),
+                    `${poster.name} to Table ${table.number}: entry closest to table takes priority over poster distance`);
+            }
         }
+        assert.deepEqual([...entriesUsed].sort((a, b) => a - b), [78, 148, 224, 302], 'all entries can be selected');
+        assert.equal(findTableRoute(plan, poster, 1)[2].x, doors[4].x, 'left-side table uses Entry 4');
+        assert.equal(findTableRoute(plan, poster, 7)[2].x, doors[1].x, 'right-side table uses Entry 1');
     }
-    assert.deepEqual([...entriesUsed].sort((a, b) => a - b), [148, 224]);
-    for (const blockedX of [148, 224]) {
+});
+
+test('both posters fall back to another entry if the closest is blocked', () => {
+    for (const poster of [doors[5], doors[6]]) {
+        for (const table of [1, 7]) {
+            const blockedX = findTableRoute(plan, poster, table)[2].x;
+            const blocked = structuredClone(plan);
+            blocked.obstacles.push({ x: blockedX - 7, y: 212, width: 14, height: 8 });
+            const route = findTableRoute(blocked, poster, table);
+            assert.ok(route);
+            assert.notEqual(route[2].x, blockedX, 'use an unblocked doorway');
+        }
         const blocked = structuredClone(plan);
-        blocked.obstacles.push({ x: blockedX - 7, y: 212, width: 14, height: 8 });
-        const route = findTableRoute(blocked, doors[5], 1);
-        assert.ok(route);
-        assert.notEqual(route[2].x, blockedX, 'use the other doorway');
+        blocked.obstacles.push({ x: 12, y: 205, width: 336, height: 2 });
+        assert.equal(findTableRoute(blocked, poster, 1), null);
     }
-    const blocked = structuredClone(plan);
-    blocked.obstacles.push({ x: 12, y: 205, width: 336, height: 2 });
-    assert.equal(findTableRoute(blocked, doors[5], 1), null);
+});
+
+test('the Right-side poster goes around the corner before crossing the wall at the chosen entry', () => {
+    const roomRight = plan.ballroom.x + plan.ballroom.width;
+    const roomBottom = plan.ballroom.y + plan.ballroom.height;
+    for (const table of plan.tables) {
+        const route = findTableRoute(plan, doors[6], table.number);
+        assert.deepEqual(route.slice(0, 2), [
+            { x: doors[6].x, y: doors[6].y },
+            { x: doors[6].x, y: doors[1].y },
+        ]);
+        assert.ok(route[0].x > roomRight, 'first segment stays outside the east wall');
+        assert.ok(route[1].y > roomBottom, 'horizontal segment stays south of the ballroom');
+        assert.equal(route[3].x, route[2].x, 'cross the south wall at the chosen entry');
+        assert.ok(route[3].y < roomBottom);
+    }
 });
 
 test('invalid entries and tables have no route', () => {
