@@ -2,10 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import TableNumber from "../components/react/TableNumber.jsx";
 import Schedule from "../components/marinecorps/Schedule.astro";
-
-import { Image } from "astro:assets";
-import cmcFlag from "../../assets/CMC Flag.png";
-import cmcSignature from "../../assets/CMC Signature.png";
+import CommandantMessage from "../components/marinecorps/CommandantMessage.astro";
 
 import { EVENT } from "../lib/event.js";
 import { url } from "../lib/url.js";
@@ -24,121 +21,16 @@ import { BUTTON_SECONDARY } from "../lib/ui.js";
     <Schedule />
   </div>
 
-  <article
-    class="mx-auto mt-16 max-w-2xl px-5"
-    aria-labelledby="cmc-message"
-  >
-    <div class="divider">
-      <span class="text-gold-muted" aria-hidden="true">◆</span>
-    </div>
+  <CommandantMessage />
 
-    <div class="mx-auto mt-10 max-w-md overflow-hidden rounded-2xl shadow-2xl shadow-black/50">
-      <Image
-        src={cmcFlag}
-        alt="Flag of the Commandant of the Marine Corps"
-        class="h-auto w-full"
-        widths={[400, 800]}
-        sizes="(min-width: 480px) 448px, 100vw"
-      />
-    </div>
-
-    <div class="mt-10 rounded-3xl border border-white/10 bg-ink-800/60 px-6 py-10 sm:px-12">
-      <p class="text-center text-xs font-semibold uppercase tracking-[0.35em] text-gold-soft">
-        {EVENT.messageDate}
-      </p>
-      <h2
-        id="cmc-message"
-        class="mt-3 text-center font-serif text-2xl font-semibold text-white text-balance sm:text-3xl"
-      >
-        A Message from the Commandant of the Marine Corps
-      </h2>
-
-      <div class="mt-8 space-y-6 font-serif text-xl leading-relaxed text-slate-200 sm:text-[1.35rem]">
-        <p class="first-letter:float-left first-letter:mr-2 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.85] first-letter:text-gold">
-          For 251 years, the United States Marine Corps has been our Nation's
-          premier expeditionary force in readiness. Born from the sea and forged
-          in the fires of conflict, Marines have fought, and won, in battles all
-          over the world. From our first amphibious landing 250 years ago at
-          Nassau to the volcanic sands of Iwo Jima, and from the bold invasion of
-          Inchon to the mountains of Afghanistan, we have always marched forward
-          with rifles in hand. The Marines who came before us paved our legacy in
-          sweat and blood. They built a foundation of excellence and proved time
-          and again that Marines remain ready to answer the call.
-        </p>
-        <p>
-          As we reflect on our proud and illustrious history and commemorate the
-          founding of our Corps, we must take inspiration for the future. We are
-          marching forward, as we always have, to fight and win our Nation's
-          battles in every clime and place. We're preparing every day by
-          innovating and evolving. Through our ingenuity, ruthless adherence to
-          standards, and sheer grit, we continue to demonstrate the unmatched
-          lethality of our expeditionary naval forces.
-        </p>
-        <p>
-          Today, the operational demand for Marines is high. At this very hour,
-          40,000 Marines are forward deployed and stationed around the world to
-          secure liberty and to strike when our adversaries test our resolve.
-          Just as always, Marines are ready to go wherever the Nation needs us,
-          whenever it needs us.
-        </p>
-        <p>
-          Sergeant Major Ruiz and I could not be prouder of your dedication to
-          upholding our legacy as America's Soldiers of the Sea. This is who we
-          are, and we are up to the challenge. We are honored to stand beside you
-          as we prepare for the fights ahead. Happy 251st Birthday, Marines!
-        </p>
-      </div>
-
-      <p class="mt-10 text-center font-serif text-xl italic text-slate-300">Semper Fidelis,</p>
-      <div class="mx-auto mt-4 max-w-[16rem] opacity-90">
-        <Image
-          src={cmcSignature}
-          alt="Signature of the Commandant"
-          class="h-auto w-full"
-        />
-      </div>
-      <p class="mt-4 text-center text-sm uppercase tracking-[0.2em] text-slate-400">
-        General, U.S. Marine Corps<br />Commandant of the Marine Corps
-      </p>
-    </div>
-  </article>
-
-  <section
-    class="mx-auto mt-16 max-w-3xl px-5"
-    aria-labelledby="video-title"
-  >
-    <h2
-      id="video-title"
-      class="text-center font-serif text-2xl font-semibold text-white sm:text-3xl"
+  <div class="mt-14 flex flex-col items-center justify-center gap-3 px-5 sm:flex-row">
+    <a
+      id="info-link"
+      class={BUTTON_SECONDARY}
+      href={url("info/")}
     >
-      The {EVENT.ordinal} Marine Corps Birthday Message
-    </h2>
-    <p class="mx-auto mt-2 max-w-xl text-center text-sm text-slate-400">
-      Gen. Eric M. Smith and Sgt. Maj. Carlos A. Ruiz deliver this year's
-      birthday message from Marine Corps Base Hawaii.
-    </p>
-    <div class="mt-6 aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl shadow-black/50">
-      <iframe
-        class="h-full w-full"
-        src="https://www.dvidshub.net/video/embed/1028302"
-        title={`The ${EVENT.ordinal} Marine Corps Birthday Message (video)`}
-        loading="lazy"
-        scrolling="no"
-        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-        allowfullscreen
-      ></iframe>
-    </div>
-    <p class="mt-3 text-center text-sm">
-      <a
-        class="text-gold-soft underline-offset-4 hover:underline"
-        href="https://www.dvidshub.net/video/1028302/"
-        target="_blank"
-        rel="noopener noreferrer">Watch on DVIDS</a
-      >
-    </p>
-  </section>
-
-  <div class="mt-14 flex justify-center px-5">
+      Evening information
+    </a>
     <a
       id="back-to-search"
       class={BUTTON_SECONDARY}
@@ -149,7 +41,9 @@ import { BUTTON_SECONDARY } from "../lib/ui.js";
   </div>
   <script>
     import { withKey } from "../lib/attendees.js";
-    const back = document.getElementById("back-to-search");
-    back.href = withKey(back.getAttribute("href"));
+    for (const id of ["back-to-search", "info-link"]) {
+      const link = document.getElementById(id);
+      link.href = withKey(link.getAttribute("href"));
+    }
   </script>
 </Layout>

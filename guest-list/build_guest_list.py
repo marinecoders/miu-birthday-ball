@@ -1,8 +1,13 @@
 """Encrypt a guest list spreadsheet into public/attendees.enc.json, which the site reads.
 
-The spreadsheet needs a header row with these columns (any order, any case):
-    Table | Title | First Name | Last Name
-Works with .xlsx (first sheet) or .csv.
+Two layouts work (header row, any column order, any case):
+    Table | Title | First Name | Last Name            (the sample list)
+    Table | Seat | Guest Name | Rank | Meal           (the ball's seating chart)
+Seat and Meal are optional in either. For .xlsx, the "Seating Roster" sheet is
+used if there is one, otherwise the first sheet. .csv works too.
+
+Only what guests see goes into the encrypted file: table, seat, title, name,
+and meal. Buyer, detachment, seating requests, and ticket numbers stay out.
 
     python build_guest_list.py seating_chart.xlsx
 
@@ -24,11 +29,26 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 HERE = Path(__file__).parent
 OUT = HERE.parent / "public" / "attendees.enc.json"
+# Information-page people (guest of honor, oldest/youngest Marine, ceremony
+# participants): kept on this computer, published only encrypted.
+PEOPLE_IN = HERE / "event_people.json"
+PEOPLE_OUT = HERE.parent / "public" / "event.enc.json"
 KEY_FILE = HERE / ".key"
 SITE = "https://marinecoders.github.io/miu-birthday-ball"  # change if you add a custom domain
 FLOOR_PLAN = json.loads((HERE.parent / "src" / "lib" / "floor-plan.json").read_text(encoding="utf-8"))
 MAP_TABLES = {table["number"] for table in FLOOR_PLAN["tables"]}
-COLUMNS = {"table": "table", "title": "title", "first name": "first_name", "last name": "last_name"}
+ROSTER_SHEET = "Seating Roster"
+# Header names each field can have (lowercase).
+HEADERS = {
+    "table": ["table"],
+    "seat": ["seat"],
+    "title": ["title", "rank"],
+    "first_name": ["first name"],
+    "last_name": ["last name"],
+    "name": ["guest name", "name"],
+    "meal": ["meal", "menu", "entree", "meal selection"],
+}
+NO_TITLE = {"other", "none", "n/a", "-"}  # civilians are "Other" in the chart
 
 
 def b64url(data: bytes) -> str:
@@ -44,7 +64,8 @@ def read_rows(path: Path) -> list[list]:
         with path.open(newline="", encoding="utf-8-sig") as f:
             return list(csv.reader(f))
     from openpyxl import load_workbook
-    ws = load_workbook(path, read_only=True, data_only=True).worksheets[0]
+    wb = load_workbook(path, read_only=True, data_only=True)
+    ws = wb[ROSTER_SHEET] if ROSTER_SHEET in wb.sheetnames else wb.worksheets[0]
     return [list(r) for r in ws.iter_rows(values_only=True)]
 
 
@@ -53,27 +74,44 @@ def clean(value) -> str:
         return ""
     if isinstance(value, float) and value.is_integer():
         value = int(value)
-    return str(value).strip()
+    return " ".join(str(value).split())  # trims and collapses doubled spaces
+
+
+def clean_meal(meal: str) -> str:
+    # "Guest - Children's Meal (TBD)" -> "Children's Meal (TBD)"
+    return meal.removeprefix("Guest - ").strip()
 
 
 def parse_guests(path: Path) -> tuple[list[dict], list[str]]:
     rows = read_rows(path)
     header = [clean(h).lower() for h in rows[0]]
-    missing = [name for name in COLUMNS if name not in header]
-    if missing:
-        sys.exit(f"Header row is missing column(s): {', '.join(missing)}. Found: {header}")
-    index = {key: header.index(name) for name, key in COLUMNS.items()}
+    col = {field: next((header.index(h) for h in names if h in header), None) for field, names in HEADERS.items()}
+    has_split_name = col["first_name"] is not None and col["last_name"] is not None
+    if col["table"] is None or not (has_split_name or col["name"] is not None):
+        sys.exit("Header row needs Table plus either First Name and Last Name, or Guest Name. "
+                 f"Found: {header}")
+    get = lambda row, field: clean(row[col[field]]) if col[field] is not None and col[field] < len(row) else ""
 
     guests, problems = [], []
     for line, row in enumerate(rows[1:], start=2):
-        guest = {key: clean(row[col]) if col < len(row) else "" for key, col in index.items()}
-        if not any(guest.values()):
+        if not any(clean(v) for v in row):
             continue  # blank row
-        if not guest["first_name"] and not guest["last_name"]:
+        if has_split_name:
+            first, last = get(row, "first_name"), get(row, "last_name")
+        else:
+            first, _, last = get(row, "name").partition(" ")
+        title = get(row, "title")
+        guest = {"table": get(row, "table"), "title": "" if title.lower() in NO_TITLE else title,
+                 "first_name": first, "last_name": last}
+        if get(row, "seat"):
+            guest["seat"] = get(row, "seat")
+        if get(row, "meal"):
+            guest["meal"] = clean_meal(get(row, "meal"))
+        if not first and not last:
             problems.append(f"row {line}: no name")
             continue
         if not guest["table"].isdigit():
-            problems.append(f"row {line}: {guest['first_name']} {guest['last_name']} has table '{guest['table']}'")
+            problems.append(f"row {line}: {first} {last} has table '{guest['table']}'")
             continue
         if int(guest["table"]) not in MAP_TABLES:
             problems.append(f"row {line}: table {guest['table']} is not on the floor map")
@@ -85,6 +123,13 @@ def parse_guests(path: Path) -> tuple[list[dict], list[str]]:
             tables = sorted({g["table"] for g in guests if names(g) == (first, last)}, key=int)
             problems.append(f"{first.title()} {last.title()} appears {n} times (tables {', '.join(tables)})")
     return guests, problems
+
+
+def encrypt_to(path: Path, data, key: bytes) -> None:
+    iv = os.urandom(12)
+    plaintext = json.dumps(data, separators=(",", ":")).encode()
+    ciphertext = AESGCM(key).encrypt(iv, plaintext, None)  # AES-256-GCM, tag appended (what WebCrypto expects)
+    path.write_text(json.dumps({"v": 1, "iv": b64url(iv), "data": b64url(ciphertext)}), encoding="utf-8")
 
 
 def load_key(new: bool) -> bytes:
@@ -105,12 +150,17 @@ def main() -> None:
     guests, problems = parse_guests(args.spreadsheet)
     key = load_key(args.new_key)
 
-    iv = os.urandom(12)
-    plaintext = json.dumps(guests, separators=(",", ":")).encode()
-    ciphertext = AESGCM(key).encrypt(iv, plaintext, None)  # AES-256-GCM, tag appended (what WebCrypto expects)
-    OUT.write_text(json.dumps({"v": 1, "iv": b64url(iv), "data": b64url(ciphertext)}), encoding="utf-8")
+    encrypt_to(OUT, guests, key)
+    if PEOPLE_IN.exists():
+        people = json.loads(PEOPLE_IN.read_text(encoding="utf-8"))
+        people.pop("_help", None)
+        encrypt_to(PEOPLE_OUT, people, key)
+        print(f"Encrypted the Information page's people from {PEOPLE_IN.name} into {PEOPLE_OUT}")
 
     print(f"Encrypted {len(guests)} guests at {len({g['table'] for g in guests})} tables into {OUT}")
+    meals = Counter(g["meal"] for g in guests if g.get("meal"))
+    if meals:
+        print("Meals: " + ", ".join(f"{m} {n}" for m, n in meals.most_common()))
     print(f"\nQR code link:\n  {SITE}/#k={b64url(key)}")
     print(f"Testing on this computer:\n  http://localhost:4321/miu-birthday-ball/#k={b64url(key)}")
     if problems:

@@ -24,7 +24,12 @@ export default class TableNumber extends React.Component {
 
     componentDidMount() {
         loadAttendees().then(({ byTable }) => {
-            this.setState({ tablemates: byTable[this.state.table] || [] })
+            const bySeat = [...(byTable[this.state.table] || [])]
+                .sort((a, b) => (Number(a.seat) || 99) - (Number(b.seat) || 99))
+            // One line per person, even when someone holds several tickets.
+            const tablemates = bySeat.filter((g, i) => bySeat.findIndex(o => fullName(o) === fullName(g)) === i)
+            const me = tablemates.find(g => fullName(g) === this.state.name)
+            this.setState({ tablemates, me })
         }).catch(() => {});
     }
 
@@ -52,7 +57,20 @@ export default class TableNumber extends React.Component {
                 <div className="mx-auto mt-6 flex aspect-square w-40 flex-col items-center justify-center rounded-full border-2 border-gold/60 bg-ink-800/80 shadow-glow sm:w-48">
                     <span className="text-xs font-semibold uppercase tracking-[0.3em] text-gold-soft">Table</span>
                     <span className="font-serif text-7xl font-bold leading-none text-gold">{this.state.table}</span>
+                    {this.state.me?.seat && (
+                        <span className="mt-1 text-xs font-semibold uppercase tracking-[0.25em] text-slate-300">Seat {this.state.me.seat}</span>
+                    )}
                 </div>
+
+                {this.state.me?.meal && (
+                    <div className="mx-auto mt-6 flex max-w-sm items-center gap-4 rounded-2xl border border-white/10 bg-ink-800/70 px-5 py-4 text-left">
+                        <span className="text-3xl" aria-hidden="true">🍽️</span>
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">Your dinner</p>
+                            <p className="mt-0.5 font-serif text-xl text-white">{this.state.me.meal}</p>
+                        </div>
+                    </div>
+                )}
               </div>
 
               <div className="mx-auto mt-10 max-w-5xl px-3 sm:px-5">

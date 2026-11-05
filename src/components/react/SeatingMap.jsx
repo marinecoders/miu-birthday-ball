@@ -44,28 +44,31 @@ function Doors({ x, y, direction = 1, label }) {
 
 // Staggered rows flank the ceremony aisle; table 22 sits behind the left block.
 // Coordinates are shared with routing and the guest-list tools.
-export default function SeatingMap({ table, door }) {
+// venue: the Information-page map. No guest table, route, entry pin, or view
+// buttons (the restrooms come from floor-plan.json, as on every map).
+export default function SeatingMap({ table, door, venue = false }) {
     const [viewport, setViewport] = useState(getViewport);
     const [viewChoice, setViewChoice] = useState(null);
     const container = useRef(null);
-    const selectedNumber = String(table ?? new URLSearchParams(window.location.search).get("table") ?? "");
+    const selectedNumber = venue ? "" : String(table ?? new URLSearchParams(window.location.search).get("table") ?? "");
     const mine = floorPlan.tables.find(t => String(t.number) === selectedNumber);
     // "You are here": the door on the guest's QR code (src/lib/doors.json),
     // or the main entrance when the link has no door.
     const [scannedDoor, setScannedDoor] = useState(() => getDoor());
     const doorNumber = String(door ?? scannedDoor ?? "");
     const here = doorSettings.doors[doorNumber] ?? { ...floorPlan.entrance, label: "above" };
-    const route = useMemo(() => findTableRoute(floorPlan, doorSettings.doors[doorNumber], selectedNumber),
-        [doorNumber, selectedNumber]);
+    const route = useMemo(() => venue ? null : findTableRoute(floorPlan, doorSettings.doors[doorNumber], selectedNumber),
+        [doorNumber, selectedNumber, venue]);
+    const plan = floorPlan;
     const viewContext = `${selectedNumber}:${doorNumber}`;
     const mode = viewChoice?.context === viewContext ? viewChoice.mode
         : viewport.compact && route ? "route" : "room";
     const { width } = viewport;
     const height = Math.round(viewport.compact
-        ? mode === "room" ? width * floorPlan.height / floorPlan.width
+        ? mode === "room" ? width * plan.height / plan.width
             : Math.min(viewport.maxHeight, mode === "table" ? width : Math.max(280, width * 1.1))
-        : width * floorPlan.height / floorPlan.width);
-    const view = getMapView(floorPlan, { width, height, mode, route, table: mine, origin: here });
+        : width * plan.height / plan.width);
+    const view = getMapView(plan, { width, height, mode, route, table: mine, origin: here });
     const { scale } = view;
     const chooseView = mode => setViewChoice({ context: viewContext, mode });
     const firstIndoorPoint = route?.find(point => point.y < floorPlan.ballroom.y + floorPlan.ballroom.height);
@@ -121,7 +124,9 @@ export default function SeatingMap({ table, door }) {
         <div ref={container}
             className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
             style={{ width: "100%", maxWidth: MAX_WIDTH + 2, margin: "0 auto" }}
-            role="img" aria-label={`Ballroom floor plan, tables ${tableRange} in ${rowCount} seating rows, with staggered tables on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Restrooms are outside the right wall; a dashed guide leads from the lower-right foyer to the restroom icon near the top-right corner. Entries 1–4 run right to left along the bottom wall. ${mine
+            role="img" aria-label={venue
+                ? `Ballroom floor plan with tables ${tableRange} in ${rowCount} seating rows on either side of the ceremony aisle, the podium at the top, and entries 1–4 along the bottom wall opening into the foyer and bars. Restrooms are outside the right wall; a dashed guide leads from the lower-right foyer to the restroom icon near the top-right corner.`
+                : `Ballroom floor plan, tables ${tableRange} in ${rowCount} seating rows, with staggered tables on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Restrooms are outside the right wall; a dashed guide leads from the lower-right foyer to the restroom icon near the top-right corner. Entries 1–4 run right to left along the bottom wall. ${mine
                 ? `Table ${mine.number} is circled in red in seating row ${mine.row}, counting from the podium.`
                 : "The podium is at the top and the main entrance is at the bottom."} ${routeDescription}`}>
             <Stage width={width} height={height}
@@ -217,10 +222,10 @@ export default function SeatingMap({ table, door }) {
                     {mine && <HandDrawnCircle x={mine.x} y={mine.y} radius={11}
                         strokeWidth={1.8} />}
                 </Layer>
-                <Layer x={view.x} y={view.y} listening={false}>
+                {!venue && <Layer x={view.x} y={view.y} listening={false}>
                     <YouAreHere x={here.x * scale} y={here.y * scale} unit={scale}
                         label={route ? "below" : here.label} />
-                </Layer>
+                </Layer>}
             </Stage>
         </div>
         {selectedNumber && !mine && <p className="mt-2 text-center text-sm text-gold" role="status">

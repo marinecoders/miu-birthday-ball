@@ -1,4 +1,4 @@
-"""Make the QR codes guests scan: one per ballroom door.
+"""Make the QR codes guests scan: one per ballroom door, and one for the tables.
 
     python guest-list/make_qr_code.py
 
@@ -11,6 +11,8 @@ contain the key):
     qr-code-door-N.svg   vector, best for printing at any size
     qr-code-door-N.png   for documents and slides
     qr-codes-print.html  one labeled sign per door, ready to print
+    qr-code-info.svg/png the table code: opens the Information page with the key
+    qr-code-info-print.html  the table sign (print one per table)
 
 The codes only depend on the key and door numbers, so they stay valid when
 the guest list changes. Run build_guest_list.py first if guest-list/.key
@@ -35,18 +37,27 @@ def door_link(key: str, door: str) -> str:
     return f"{SITE}/#k={key}&d={door}"
 
 
-def print_sheet(signs: list[tuple[str, str, str]]) -> str:
-    """One page per door: event title, instructions, QR code, door name."""
+def info_link(key: str) -> str:
+    return f"{SITE}/info/#k={key}"
+
+
+def door_sign(door: str, name: str, svg: str) -> dict:
+    return {"heading": "Find your seat", "svg": svg, "label": name,
+            "check": f"This code is for {name} only. Post it at that location."}
+
+
+def print_sheet(signs: list[dict]) -> str:
+    """One page per sign: event title, heading, instructions, QR code, label."""
     pages = "\n".join(
         f"""  <section class="sign">
     <p class="event">{html.escape(EVENT_TITLE)}</p>
-    <h1>Find your seat</h1>
+    <h1>{html.escape(sign["heading"])}</h1>
     <p class="how">Point your phone's camera at the code</p>
-    <div class="qr">{svg}</div>
-    <p class="door">{html.escape(name)}</p>
-    <p class="check">This code is for {html.escape(name)} only. Post it at that location.</p>
+    <div class="qr">{sign["svg"]}</div>
+    <p class="door">{html.escape(sign["label"])}</p>
+    <p class="check">{html.escape(sign["check"])}</p>
   </section>"""
-        for door, name, svg in signs
+        for sign in signs
     )
     return f"""<!doctype html>
 <html lang="en">
@@ -89,13 +100,29 @@ def main() -> None:
         svg, png = HERE / f"qr-code-door-{door}.svg", HERE / f"qr-code-door-{door}.png"
         qr.save(svg, scale=10, border=4, dark="#000000", light="#ffffff")
         qr.save(png, scale=20, border=4, dark="#000000", light="#ffffff")
-        signs.append((door, info["name"], qr.svg_inline(scale=10, border=4, dark="#000000", light="#ffffff")))
+        signs.append(door_sign(door, info["name"], qr.svg_inline(scale=10, border=4, dark="#000000", light="#ffffff")))
         print(f"  {info['name']}: {svg.name}, {png.name}")
 
     sheet = HERE / "qr-codes-print.html"
     sheet.write_text(print_sheet(signs), encoding="utf-8")
     print(f"\nPrint sheet, one sign per page: {sheet}")
     print("Open it in a browser and print. Test-scan each printed sign at its own door.")
+
+    # The table code: the Information page, with the key so honored guests and
+    # ceremony participants show. No entry number, so no "You are here".
+    qr = segno.make(info_link(key), error="q", micro=False)
+    svg, png = HERE / "qr-code-info.svg", HERE / "qr-code-info.png"
+    qr.save(svg, scale=10, border=4, dark="#000000", light="#ffffff")
+    qr.save(png, scale=20, border=4, dark="#000000", light="#ffffff")
+    table_sheet = HERE / "qr-code-info-print.html"
+    table_sheet.write_text(print_sheet([{
+        "heading": "Tonight's program",
+        "svg": qr.svg_inline(scale=10, border=4, dark="#000000", light="#ffffff"),
+        "label": "Schedule, map, restrooms, bars & more",
+        "check": "Table card. Print one for each table.",
+    }]), encoding="utf-8")
+    print(f"\nTable code (Information page): {svg.name}, {png.name}")
+    print(f"Table sign: {table_sheet}  (print one per table)")
 
 
 if __name__ == "__main__":

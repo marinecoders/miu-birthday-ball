@@ -1,0 +1,58 @@
+---
+// Information page: the QR code on every table opens this. General info is
+// public; honored guests and participants need the key in the table QR code.
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/marinecorps/Hero.astro";
+import Schedule from "../components/marinecorps/Schedule.astro";
+import CommandantMessage from "../components/marinecorps/CommandantMessage.astro";
+import SeatingMap from "../components/react/SeatingMap.jsx";
+import EventPeople from "../components/react/EventPeople.jsx";
+import { INFO } from "../lib/info.js";
+import { url } from "../lib/url.js";
+import { BUTTON_SECONDARY } from "../lib/ui.js";
+---
+
+<Layout title="Information">
+  <Hero content="Everything you need for tonight." padding="pt-12 sm:pt-16" />
+
+  <section class="mx-auto mt-10 max-w-3xl px-5" aria-label="Good to know">
+    <ul class="grid gap-3 sm:grid-cols-3">
+      {
+        INFO.map((item) => (
+          <li class="rounded-2xl border border-white/10 bg-ink-800/70 p-5">
+            <p class="text-2xl" aria-hidden="true">{item.icon}</p>
+            <h2 class="mt-2 text-xs font-semibold uppercase tracking-[0.25em] text-gold-soft">{item.title}</h2>
+            <p class="mt-1.5 text-sm leading-relaxed text-slate-200">{item.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="mx-auto mt-14 max-w-5xl px-3 sm:px-5" aria-labelledby="map-title">
+    <h2 id="map-title" class="mb-4 text-center font-serif text-2xl font-semibold text-white sm:text-3xl">
+      The Ballroom
+    </h2>
+    <SeatingMap client:only="react" venue />
+    <div class="mt-6 flex justify-center">
+      <a id="find-seat" class={BUTTON_SECONDARY} href={url()}>Find your seat</a>
+    </div>
+  </section>
+
+  <div class="mt-16">
+    <Schedule />
+  </div>
+
+  <div class="mx-auto mt-16 max-w-3xl px-5">
+    <EventPeople client:only="react" />
+  </div>
+
+  <CommandantMessage />
+
+  <script>
+    // Keep the key when going to the seat search, so it opens without a rescan.
+    import { withKey } from "../lib/attendees.js";
+    const link = document.getElementById("find-seat");
+    link.href = withKey(link.getAttribute("href"));
+  </script>
+</Layout>
