@@ -21,9 +21,9 @@ function browser(t, { hash = '', search = '', saved, blocked = false } = {}) {
     return values;
 }
 
-test('printed QR fragments remember each of the four entries between pages', t => {
+test('printed QR fragments remember all five QR locations between pages', t => {
     const values = browser(t);
-    for (const entry of ['1', '2', '3', '4']) {
+    for (const entry of ['1', '2', '3', '4', '5']) {
         window.location.hash = `#k=fake-test-key&d=${entry}`;
         assert.equal(getDoor(), entry);
         assert.equal(values.get('guestDoor'), entry);
@@ -46,7 +46,7 @@ test('the printed QR fragment takes priority over query and saved entries', t =>
 
 test('invalid or missing entries never silently route from a stale or invented door', t => {
     const values = browser(t, { saved: '2' });
-    for (const value of ['', '0', '5', '01', 'NaN', 'constructor', '__proto__']) {
+    for (const value of ['', '0', '6', '01', 'NaN', 'constructor', '__proto__']) {
         window.location.hash = `#d=${value}`;
         assert.equal(getDoor(), null);
         assert.equal(values.has('guestDoor'), false);
@@ -61,8 +61,8 @@ test('QR links still identify the entry when browser storage is blocked', t => {
     browser(t, { hash: '#k=fake-test-key&d=3', blocked: true });
     assert.equal(getDoor(), '3');
     window.location.hash = '';
-    window.location.search = '?d=1';
-    assert.equal(getDoor(), '1');
+    window.location.search = '?d=5';
+    assert.equal(getDoor(), '5');
     window.location.search = '';
     assert.equal(getDoor(), null);
 });

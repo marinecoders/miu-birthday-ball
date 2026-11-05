@@ -3,6 +3,7 @@ import { Stage, Layer, Circle, Group, Text, Rect, Line, Path } from "react-konva
 import HandDrawnCircle from "./HandDrawnCircle.jsx";
 import YouAreHere from "./YouAreHere.jsx";
 import RouteArrow from "./RouteArrow.jsx";
+import RestroomMarker from "./RestroomMarker.jsx";
 import floorPlan from "../../lib/floor-plan.json";
 import doorSettings from "../../lib/doors.json";
 import { getDoor } from "../../lib/entry.js";
@@ -41,38 +42,10 @@ function Doors({ x, y, direction = 1, label }) {
     </Group>;
 }
 
-// Information-page additions east of the ballroom, from the venue plan: a
-// hallway from the foyer up the east side to the restrooms in the top right.
-const VENUE_WIDTH = 440;
-function VenueExtras() {
-    const hall = "#f1f5f9", wall = "#475569";
-    return <Group id="venue-extras" listening={false}>
-        {/* Hallway: up the east side of the ballroom, then along to the restrooms. */}
-        <Line points={[348, 64, 434, 64, 434, 84, 378, 84, 378, 262, 350, 262, 343, 220, 348, 220]}
-            fill={hall} closed />
-        {/* Walls on the outside only, so the hallway stays open to the foyer. */}
-        <Line points={[348, 64, 434, 64, 434, 84, 378, 84, 378, 262, 350, 262]}
-            stroke={wall} strokeWidth={1.2} lineJoin="round" />
-        <Line points={[350, 262, 343, 220]} stroke={hall} strokeWidth={2.6} />
-        <MapLabel x={330} y={150} width={96} height={10} text="HALLWAY" fontSize={4.4}
-            fill="#64748b" letterSpacing={1} rotation={-90} offsetX={-3} offsetY={-38} />
-        {/* Restrooms, doors opening onto the hallway. */}
-        {[{ x: 352, label: "MEN" }, { x: 394, label: "WOMEN" }].map(room => <Group key={room.label}>
-            <Rect x={room.x} y={20} width={40} height={44} fill="#e0e7ff" stroke={wall} strokeWidth={1.2} />
-            <Line points={[room.x + 8, 64, room.x + 20, 64]} stroke={hall} strokeWidth={2.4} />
-            <Path data={`M${room.x + 8} 64 A12 12 0 0 1 ${room.x + 20} 52`} stroke="#94a3b8" strokeWidth={0.7} />
-            <MapLabel x={room.x} y={32} width={40} height={8} text={room.label} fontSize={4.6}
-                fontStyle="bold" fill="#3730a3" />
-        </Group>)}
-        <MapLabel x={352} y={10} width={82} height={8} text="RESTROOMS" fontSize={4.6}
-            fontStyle="bold" fill="#3730a3" letterSpacing={0.8} />
-    </Group>;
-}
-
 // Staggered rows flank the ceremony aisle; table 22 sits behind the left block.
 // Coordinates are shared with routing and the guest-list tools.
 // venue: the Information-page map. No guest table, route, entry pin, or view
-// buttons; the room is widened to show the hallway and restrooms.
+// buttons (the restrooms come from floor-plan.json, as on every map).
 export default function SeatingMap({ table, door, venue = false }) {
     const [viewport, setViewport] = useState(getViewport);
     const [viewChoice, setViewChoice] = useState(null);
@@ -86,7 +59,7 @@ export default function SeatingMap({ table, door, venue = false }) {
     const here = doorSettings.doors[doorNumber] ?? { ...floorPlan.entrance, label: "above" };
     const route = useMemo(() => venue ? null : findTableRoute(floorPlan, doorSettings.doors[doorNumber], selectedNumber),
         [doorNumber, selectedNumber, venue]);
-    const plan = venue ? { ...floorPlan, width: VENUE_WIDTH } : floorPlan;
+    const plan = floorPlan;
     const viewContext = `${selectedNumber}:${doorNumber}`;
     const mode = viewChoice?.context === viewContext ? viewChoice.mode
         : viewport.compact && route ? "route" : "room";
@@ -98,8 +71,12 @@ export default function SeatingMap({ table, door, venue = false }) {
     const view = getMapView(plan, { width, height, mode, route, table: mine, origin: here });
     const { scale } = view;
     const chooseView = mode => setViewChoice({ context: viewContext, mode });
+    const firstIndoorPoint = route?.find(point => point.y < floorPlan.ballroom.y + floorPlan.ballroom.height);
+    const routedEntry = Object.entries(doorSettings.doors)
+        .find(([, entry]) => !entry.via && entry.x === firstIndoorPoint?.x)?.[0];
+    const originName = here.via ? here.name : `Entry ${doorNumber}`;
     const routeDescription = mine ? route
-        ? `Follow the blue path from Entry ${doorNumber} to Table ${mine.number}.`
+        ? `Follow the blue path from ${originName}${here.via ? ` through Entry ${routedEntry}` : ""} to Table ${mine.number}.`
         : doorSettings.doors[doorNumber]
             ? "A clear route could not be found. Please ask the entrance staff for directions."
             : "Scan the QR code at your entry to see a path to your table."
@@ -148,8 +125,8 @@ export default function SeatingMap({ table, door, venue = false }) {
             className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40"
             style={{ width: "100%", maxWidth: MAX_WIDTH + 2, margin: "0 auto" }}
             role="img" aria-label={venue
-                ? `Ballroom floor plan with tables ${tableRange}, the ceremony area at the top, entries 1–4 along the bottom wall opening into the foyer and bars, and a hallway up the east side to the men's and women's restrooms in the top right.`
-                : `Ballroom floor plan, tables ${tableRange} in ${rowCount} seating rows, with staggered tables on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Entries 1–4 run right to left along the bottom wall. ${mine
+                ? `Ballroom floor plan with tables ${tableRange} in ${rowCount} seating rows on either side of the ceremony aisle, the podium at the top, and entries 1–4 along the bottom wall opening into the foyer and bars. Restrooms are outside the right wall; a dashed guide leads from the lower-right foyer to the restroom icon near the top-right corner.`
+                : `Ballroom floor plan, tables ${tableRange} in ${rowCount} seating rows, with staggered tables on either side of a clear ceremony aisle. The unnumbered POW/MIA table is to the right of Entry 2. Restrooms are outside the right wall; a dashed guide leads from the lower-right foyer to the restroom icon near the top-right corner. Entries 1–4 run right to left along the bottom wall. ${mine
                 ? `Table ${mine.number} is circled in red in seating row ${mine.row}, counting from the podium.`
                 : "The podium is at the top and the main entrance is at the bottom."} ${routeDescription}`}>
             <Stage width={width} height={height}
@@ -157,14 +134,31 @@ export default function SeatingMap({ table, door, venue = false }) {
                 <Layer x={view.x} y={view.y} scaleX={scale} scaleY={scale} listening={false}>
                     {/* Ballroom and the foyer/bar area, oriented as in the reference. */}
                     <Group id="foyer">
-                        <Line points={[54, 220, 54, 254, 46.5, 254, 46.5, 292, 244, 292, 244, 248, 280, 248, 324, 284, 350, 262, 343, 220]}
-                            fill="#f1f5f9" stroke="#475569" strokeWidth={1.2} closed />
+                        {/* The foyer opens into the restroom passage on the right. */}
+                        <Line points={[54, 220, 54, 254, 46.5, 254, 46.5, 292, 256, 292,
+                            256, 276, 228, 248, 292, 248, 303, 259, 315, 248, 343, 276,
+                            371, 248, floorPlan.width, 248, floorPlan.width, 220]}
+                            fill="#f1f5f9" closed />
+                        <Line points={[54, 220, 54, 254, 46.5, 254, 46.5, 292, 256, 292, 256, 276]}
+                            stroke="#475569" strokeWidth={1.2} />
+                        <Line points={[244, 248, 292, 248, 303, 259, 315, 248, 343, 276,
+                            371, 248, floorPlan.width, 248]}
+                            stroke="#475569" strokeWidth={1.2} />
+                        <Group id="foyer-stairs">
+                            <Line points={[228, 248, 244, 248, 265, 269, 256, 276]}
+                                fill="#fafaf9" closed />
+                            {Array.from({ length: 8 }, (_, index) => 8 + index * 20 / 7).map(step =>
+                                <Line key={step} points={[228 + step, 248 + step, 236 + step, 240 + step]}
+                                    stroke="#475569" strokeWidth={0.4} />)}
+                            <Line points={[228, 248, 256, 276]} stroke="#475569" strokeWidth={1.2} />
+                            <Line points={[244, 248, 265, 269]} stroke="#475569" strokeWidth={1.2} />
+                        </Group>
                         {/* The west wall steps out below the side double doors. */}
                         <Line points={[54, 232, 54, 250]} stroke="#fafaf9" strokeWidth={3} />
                         <Path data="M54 232 H45 A9 9 0 0 0 54 241 M54 250 H45 A9 9 0 0 1 54 241"
                             stroke="#94a3b8" strokeWidth={0.7} />
                     </Group>
-                    {venue && <VenueExtras />}
+                    <RestroomMarker landmark={floorPlan.restrooms} scale={scale} />
                     <Rect {...floorPlan.ballroom}
                         fill="#fafaf9" stroke="#334155" strokeWidth={1.5} />
                     <Group id="ceremony-aisle">
@@ -203,7 +197,7 @@ export default function SeatingMap({ table, door, venue = false }) {
                             text={"POW\nMIA"} fontSize={3.4} fill="#334155" fontStyle="bold" lineHeight={1.2} />
                     </Group>
 
-                    <MapLabel x={74} y={251} width={140} text="FOYER" fontSize={5} fill="#64748b" letterSpacing={1.2} />
+                    <MapLabel x={78} y={251} width={70} text="FOYER" fontSize={5} fill="#64748b" letterSpacing={1.2} />
                     {[77, 139, 201].map(x => <Group key={`bar-${x}`}>
                         <Rect x={x} y={276} width={34} height={9} fill="#cbd5e1" cornerRadius={1} />
                         <MapLabel x={x} y={277} width={34} height={7} text="BAR" fontSize={3.8} fill="#334155" />

@@ -43,7 +43,7 @@ def info_link(key: str) -> str:
 
 def door_sign(door: str, name: str, svg: str) -> dict:
     return {"heading": "Find your seat", "svg": svg, "label": name,
-            "check": f"This code is for Entry {door} only. Post it at that entry."}
+            "check": f"This code is for {name} only. Post it at that location."}
 
 
 def print_sheet(signs: list[dict]) -> str:
