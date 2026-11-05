@@ -69,7 +69,7 @@ export default function EventPeople() {
                                     {group.roles.map(role => (
                                         <div key={role.role}>
                                             <dt className="text-sm text-slate-400">{role.role}</dt>
-                                            <dd className="font-serif text-lg text-white">{role.names.join(", ")}</dd>
+                                            <dd className="font-serif text-lg text-white" style={{ whiteSpace: "pre-wrap" }}>{role.names.join("\n")}</dd>
                                         </div>
                                     ))}
                                 </dl>
