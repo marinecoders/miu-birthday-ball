@@ -44,7 +44,7 @@ def print_sheet(signs: list[tuple[str, str, str]]) -> str:
     <p class="how">Point your phone's camera at the code</p>
     <div class="qr">{svg}</div>
     <p class="door">{html.escape(name)}</p>
-    <p class="check">This code is for Entry {html.escape(door)} only. Post it at that entry.</p>
+    <p class="check">This code is for {html.escape(name)} only. Post it at that location.</p>
   </section>"""
         for door, name, svg in signs
     )

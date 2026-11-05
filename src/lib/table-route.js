@@ -74,8 +74,9 @@ function simplify(points) {
     return result;
 }
 
-// The foyer pin is directly south of its doorway. Search inside the ballroom
-// only, so a route cannot leave through a different door or cross a side wall.
+// Foyer locations can supply doorway approaches; ordinary entry pins sit
+// directly south of their doorway. Search inside the ballroom only, so the
+// indoor route cannot leave through a different door or cross a side wall.
 // A* tracks arrival direction and charges for turns to favor simple aisle paths.
 export function findTableRoute(plan, door, tableNumber) {
     const table = plan.tables.find(t => String(t.number) === String(tableNumber));
@@ -83,6 +84,19 @@ export function findTableRoute(plan, door, tableNumber) {
     const { blocked, left, right, top, bottom } = getGrid(plan);
     const { width, height } = plan;
     if (door.x < left || door.x > right || door.y < plan.ballroom.y + plan.ballroom.height || door.y >= height) return null;
+    if (door.via) {
+        let best = null, bestCost = Infinity;
+        for (const entry of door.via) {
+            const indoor = findTableRoute(plan, entry, tableNumber);
+            if (!indoor) continue;
+            const route = simplify([{ x: door.x, y: door.y }, { x: door.x, y: entry.y }, ...indoor]);
+            const cost = route.slice(1).reduce((sum, point, index) => sum
+                + Math.abs(point.x - route[index].x) + Math.abs(point.y - route[index].y), 0)
+                + TURN_COST * (route.length - 2);
+            if (cost < bestCost) { best = route; bestCost = cost; }
+        }
+        return best;
+    }
     const start = bottom * width + door.x;
     if (blocked[start]) return null;
     const distance = plan.tableRadius + ROUTE_CLEARANCE + 1;

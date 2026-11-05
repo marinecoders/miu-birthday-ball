@@ -1,7 +1,7 @@
 // Both printed QR fragments (#k=...&d=N) and plain ?d=N links are supported.
 // A new scan replaces the remembered entry; invalid links clear stale entries.
 const STORAGE_KEY = "guestDoor";
-const valid = value => /^[1-4]$/.test(value ?? "");
+const valid = value => /^[1-5]$/.test(value ?? "");
 
 export function getDoor() {
     const hash = new URLSearchParams(window.location.hash.slice(1));

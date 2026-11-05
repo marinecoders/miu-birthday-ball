@@ -1,5 +1,5 @@
 {
-  "_help": "One entry per ballroom door. The key (\"1\"-\"4\") is what each door's QR code carries. name: shown on the printed QR sign; matches the \"Entry N\" labels drawn on the map. x, y: where the You Are Here pin goes, in the same units as src/lib/floor-plan.json (360 wide by 304 tall, (0,0) top-left). The four doors match the doors drawn on the ballroom's south wall (y=220) in SeatingMap.jsx, numbered east to west (Door 1 is on the far right, Door 4 on the far left); pins sit just outside each door, in the foyer. label: where the pin's label goes, \"above\", \"below\", \"left\", or \"right\".",
+  "_help": "QR locations keyed by the d=N value in each code. Locations 1-4 match the ballroom doors on the south wall (y=220), numbered right to left. Location 5 is the Main poster in the foyer between Entries 2 and 3, not an additional physical doorway. name: printed on the QR sign. x, y: You Are Here pin coordinates in src/lib/floor-plan.json units, (0,0) top-left. via: optional doorway approach points; routes from a foyer location use the shortest clear route through one of these approaches. label: pin label position (above, below, left, or right).",
   "doors": {
     "1": {
       "name": "Entry 1 - far right",
@@ -24,6 +24,13 @@
       "x": 78,
       "y": 237,
       "label": "above"
+    },
+    "5": {
+      "name": "Main poster",
+      "x": 186,
+      "y": 260,
+      "label": "above",
+      "via": [{ "x": 148, "y": 237 }, { "x": 224, "y": 237 }, { "x": 302, "y": 237 }, { "x": 78, "y": 237 }]
     }
   }
 }
