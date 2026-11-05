@@ -9,7 +9,7 @@ export const INFO = [
   {
     icon: "🚻",
     title: "Restrooms",
-    text: "Leave the ballroom by any entry and follow the hallway to the right (east). The restrooms are at the end, top right of the map.",
+    text: "Leave the ballroom by any entry and follow the hallway to the left (east). The restrooms are at the end, top right of the map.",
   },
   {
     icon: "🪑",
