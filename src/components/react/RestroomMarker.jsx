@@ -1,5 +1,14 @@
 import React from "react";
-import { Circle, Group, Line, Rect, Text } from "react-konva";
+import { Circle, Group, Line, Path, Rect, Text } from "react-konva";
+
+// The standard restroom pictogram (woman, divider, man), traced from the
+// reference Toilets_unisex.svg. Its artwork is 620 x 572; it is scaled into
+// the marker's 10-unit circle and drawn in white.
+const ICON_WIDTH = 620;
+const ICON_HEIGHT = 572;
+const ICON_SCALE = 0.0195; // about 12 x 11 units, clear of the circle's edge
+const WOMAN = "M124.50539,388.15534V549.98933C124.26193,579.39154,80.494976,579.39154,80.108304,549.98933V388.15534H22.821751L84.404788,171.89962H74.379644L38.57554,295.0651C29.524278,322.30474,-7.3109962,311.27714,1.3392857,282.17574L41.43986,148.98509C46.051436,133.68965,65.32836,106.68061,98.726432,106.02037H128.80188H163.17384C195.6095,106.68061,214.96663,133.91881,220.46041,148.98509L260.56101,282.17574C268.69571,311.1339,232.15259,323.02082,223.32473,295.0651L187.52063,171.89962H176.06331L239.07855,388.15534H180.3598V549.98933C180.8181,579.39154,137.22302,579.2483,137.39487,549.98933V388.15534H124.50539z";
+const MAN = "M462.49589,106.02037C426.70613,106.02037,403.77713,137.00793,403.77713,167.60313V310.81886C403.44773,338.80318,443.74313,338.80318,443.87777,310.81886V179.06038H453.90289V542.82853C453.28133,580.80938,506.95025,579.72094,506.89297,542.82853V330.86906H515.48597V542.82853C516.18773,579.72094,570.13733,580.80938,569.90817,542.82853V179.06038H579.93333V310.81886C579.46073,339.01802,619.54701,339.01802,620.03389,310.81886V167.60313C619.46109,137.00793,595.67281,106.56889,559.88305,106.02037H462.49589z";
 
 export default function RestroomMarker({ landmark, scale }) {
     const { x, y, radius, guide } = landmark;
@@ -8,15 +17,14 @@ export default function RestroomMarker({ landmark, scale }) {
         <Line points={guide} stroke="#94a3b8" strokeWidth={0.7} dash={[2, 2]} />
         <Group x={x} y={y} scaleX={radius / 10} scaleY={radius / 10}>
             <Circle radius={10} fill="#334155" />
-            <Line points={[0, -6, 0, 6]} stroke="#ffffff" strokeWidth={0.5} opacity={0.6} />
-            <Circle x={-4} y={-4.5} radius={1.2} fill="#ffffff" />
-            <Rect x={-5.5} y={-2.5} width={3} height={4.5} cornerRadius={0.6} fill="#ffffff" />
-            <Line points={[-4.8, 1, -4.8, 5.5]} stroke="#ffffff" strokeWidth={1.1} lineCap="round" />
-            <Line points={[-3.2, 1, -3.2, 5.5]} stroke="#ffffff" strokeWidth={1.1} lineCap="round" />
-            <Circle x={4} y={-4.5} radius={1.2} fill="#ffffff" />
-            <Line points={[4, -2.5, 1.4, 2.5, 6.6, 2.5]} fill="#ffffff" closed />
-            <Line points={[3.2, 2, 3.2, 5.5]} stroke="#ffffff" strokeWidth={1.1} lineCap="round" />
-            <Line points={[4.8, 2, 4.8, 5.5]} stroke="#ffffff" strokeWidth={1.1} lineCap="round" />
+            <Group id="restroom-pictogram" scaleX={ICON_SCALE} scaleY={ICON_SCALE}
+                offsetX={ICON_WIDTH / 2} offsetY={ICON_HEIGHT / 2}>
+                <Circle x={130.95} y={46.59} radius={46.55} fill="#ffffff" />
+                <Path data={WOMAN} fill="#ffffff" />
+                <Rect x={297.79} y={5.77} width={53} height={562.84} fill="#ffffff" />
+                <Circle x={511.91} y={46.59} radius={46.55} fill="#ffffff" />
+                <Path data={MAN} fill="#ffffff" />
+            </Group>
         </Group>
         {/* Keep the vertical label readable even in a phone's whole-room view. */}
         <Text x={x - 13.5 / scale} y={labelY + 45 / scale}
